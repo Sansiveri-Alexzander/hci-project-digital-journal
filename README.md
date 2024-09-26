@@ -13,3 +13,9 @@ Alexzander Sansiveri --
 Katelin Tharp -- katelin.c.tharp@gmail.com
 
 Andrew Zhang -- andrew.s.zhang@gmail.com
+
+## Planned tech stack
+DB - MySQL
+Backend - Java
+Frontend - TS/React
+
