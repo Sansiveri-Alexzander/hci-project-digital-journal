@@ -19,7 +19,6 @@ Andrew Zhang -- andrew.s.zhang@gmail.com
 https://www.figma.com/design/fUjWXIaGkTYXzRY9OMxHoW/MemoSphere?node-id=0-1&t=XZe5JKzvuMhFYMMW-1
 
 ## Planned tech stack
-DB - MySQL
 
 Backend - Java
 
