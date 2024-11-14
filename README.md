@@ -8,7 +8,7 @@ Joey Gawler -- joepgawler@gmail.com
 
 Zach Marino -- zachmarino234@gmail.com
 
-Alexzander Sansiveri --
+Alexzander Sansiveri -- sasha.sansiveri@gmail.com
 
 Katelin Tharp -- katelin.c.tharp@gmail.com
 

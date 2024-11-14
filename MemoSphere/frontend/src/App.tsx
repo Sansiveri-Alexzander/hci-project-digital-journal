@@ -1,5 +1,5 @@
 // src/App.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout';
 import { Home } from '@/components/pages/Home.tsx';
@@ -53,41 +53,124 @@ const INITIAL_ENTRIES: Entry[] = [
 import { createContext, useContext, useState } from 'react';
 
 // Create context for entries
+// Update the interface to reflect async operations
 interface EntriesContextType {
     entries: Entry[];
-    addEntry: (entry: Omit<Entry, 'id' | 'date'>) => void;
-    getEntry: (id: string) => Entry | undefined;
-    searchEntries: (query: string) => Entry[];
+    addEntry: (entry: Omit<Entry, 'id' | 'date'>) => Promise<void>;
+    getEntry: (id: string) => Promise<Entry | undefined>;
+    searchEntries: (query: string) => Promise<Entry[]>;
+    isLoading: boolean;
+    error: string | null;
 }
 
 const EntriesContext = createContext<EntriesContextType | undefined>(undefined);
 
-// Create provider component
+// Create provider component with proper error handling and loading states
 export const EntriesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [entries, setEntries] = useState<Entry[]>(INITIAL_ENTRIES);
+    const [entries, setEntries] = useState<Entry[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const addEntry = (newEntry: Omit<Entry, 'id' | 'date'>) => {
-        const entry: Entry = {
-            ...newEntry,
-            id: Date.now().toString(),
-            date: new Date().toISOString()
+    // Fetch initial entries
+    useEffect(() => {
+        const fetchEntries = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                const response = await fetch('http://localhost:8080/api/entries');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch entries');
+                }
+                const data = await response.json();
+                setEntries(data);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'An error occurred');
+                console.error('Error fetching entries:', err);
+            } finally {
+                setIsLoading(false);
+            }
         };
-        setEntries(prev => [entry, ...prev]);
+
+        fetchEntries();
+    }, []);
+
+    const addEntry = async (newEntry: Omit<Entry, 'id' | 'date'>) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const response = await fetch('http://localhost:8080/api/entries', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newEntry)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create entry');
+            }
+
+            const savedEntry = await response.json();
+            setEntries(prev => [savedEntry, ...prev]);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to add entry');
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const getEntry = (id: string) => {
-        return entries.find(entry => entry.id === id);
+    const getEntry = async (id: string): Promise<Entry | undefined> => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const response = await fetch(`http://localhost:8080/api/entries/${id}`);
+            if (!response.ok) {
+                if (response.status === 404) {
+                    return undefined;
+                }
+                throw new Error('Failed to fetch entry');
+            }
+            return await response.json();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to get entry');
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const searchEntries = (query: string) => {
-        return entries.filter(entry =>
-            entry.title.toLowerCase().includes(query.toLowerCase()) ||
-            entry.content.toLowerCase().includes(query.toLowerCase())
-        );
+    const searchEntries = async (query: string): Promise<Entry[]> => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/entries/search?query=${encodeURIComponent(query)}`
+            );
+            if (!response.ok) {
+                throw new Error('Failed to search entries');
+            }
+            const results = await response.json();
+            return results;
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to search entries');
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
-        <EntriesContext.Provider value={{ entries, addEntry, getEntry, searchEntries }}>
+        <EntriesContext.Provider 
+            value={{ 
+                entries, 
+                addEntry, 
+                getEntry, 
+                searchEntries,
+                isLoading,
+                error
+            }}
+        >
             {children}
         </EntriesContext.Provider>
     );
