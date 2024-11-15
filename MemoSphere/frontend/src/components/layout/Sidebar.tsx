@@ -1,7 +1,19 @@
 // src/components/layout/Sidebar.tsx
 import React from 'react';
-import { X, Home, Book, RefreshCw, Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useLocation, useNavigate } from 'react-router-dom';
+import {
+    Home,
+    Book,
+    RefreshCw,
+    Settings,
+    Search,
+    X,
+    PenLine,
+    Mic,
+    Camera
+} from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface SidebarProps {
     isOpen: boolean;
@@ -9,32 +21,64 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
     const menuItems = [
         { icon: <Home className="h-5 w-5" />, label: 'Home', path: '/' },
         { icon: <Book className="h-5 w-5" />, label: 'All Entries', path: '/entries' },
         { icon: <RefreshCw className="h-5 w-5" />, label: 'Reflect', path: '/reflect' },
+        { icon: <Search className="h-5 w-5" />, label: 'Search', path: '/search' },
         { icon: <Settings className="h-5 w-5" />, label: 'Settings', path: '/settings' },
     ];
+
+    const quickEntryButtons = [
+        {
+            icon: <PenLine className="h-4 w-4" />,
+            label: 'Text',
+            path: '/create/text',
+            description: 'Write your thoughts'
+        },
+        {
+            icon: <Mic className="h-4 w-4" />,
+            label: 'Audio',
+            path: '/create/audio',
+            description: 'Record your voice'
+        },
+        {
+            icon: <Camera className="h-4 w-4" />,
+            label: 'Image',
+            path: '/create/image',
+            description: 'Capture a moment'
+        },
+    ];
+
+    const handleNavigation = (path: string) => {
+        navigate(path);
+        onClose();
+    };
 
     return (
         <>
             {/* Backdrop */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 transition-opacity z-40"
+                    className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
                     onClick={onClose}
                 />
             )}
 
             {/* Sidebar */}
             <div
-                className={`fixed inset-y-0 left-0 w-64 bg-white shadow-lg transform transition-transform duration-200 ease-in-out z-50 ${
-                    isOpen ? 'translate-x-0' : '-translate-x-full'
-                }`}
+                className={cn(
+                    "fixed inset-y-0 left-0 w-64 bg-background border-r border-border",
+                    "transform transition-transform duration-200 ease-in-out z-50",
+                    isOpen ? "translate-x-0" : "-translate-x-full"
+                )}
             >
                 {/* Header */}
-                <div className="h-16 border-b border-gray-200 flex items-center justify-between px-4">
-                    <h2 className="text-xl font-semibold text-gray-900">Menu</h2>
+                <div className="h-16 border-b border-border px-4 flex items-center justify-between">
+                    <h2 className="text-lg font-semibold">MemoSphere</h2>
                     <Button
                         variant="ghost"
                         size="icon"
@@ -45,33 +89,51 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Navigation */}
-                <nav className="p-4">
-                    <div className="space-y-2">
-                        {menuItems.map((item) => (
+                <div className="p-4 space-y-2">
+                    {menuItems.map((item) => (
+                        <Button
+                            key={item.path}
+                            variant={location.pathname === item.path ? "secondary" : "ghost"}
+                            className={cn(
+                                "w-full justify-start gap-3 text-base font-medium",
+                                location.pathname === item.path && "bg-muted"
+                            )}
+                            onClick={() => handleNavigation(item.path)}
+                        >
+                            {item.icon}
+                            {item.label}
+                        </Button>
+                    ))}
+                </div>
+
+                {/* Quick Entry Section */}
+                <div className="p-4 border-t border-border">
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Quick Entry</h3>
+                    <div className="grid grid-cols-3 gap-2">
+                        {quickEntryButtons.map((button) => (
                             <Button
-                                key={item.path}
-                                variant="ghost"
-                                className="w-full justify-start text-base font-medium"
-                                onClick={() => {
-                                    // Handle navigation
-                                    onClose();
-                                }}
+                                key={button.path}
+                                variant="outline"
+                                size="sm"
+                                className="flex flex-col items-center py-4 gap-2 h-auto"
+                                onClick={() => handleNavigation(button.path)}
+                                title={button.description}
                             >
-                                {item.icon}
-                                <span className="ml-3">{item.label}</span>
+                                {button.icon}
+                                <span className="text-xs">{button.label}</span>
                             </Button>
                         ))}
                     </div>
-                </nav>
+                </div>
 
-                {/* User section at bottom */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+                {/* User Section */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
                     <Button
                         variant="outline"
                         className="w-full justify-center"
                         onClick={() => {
                             // Handle sign in/out
-                            onClose();
+                            console.log('Toggle auth');
                         }}
                     >
                         Sign In
