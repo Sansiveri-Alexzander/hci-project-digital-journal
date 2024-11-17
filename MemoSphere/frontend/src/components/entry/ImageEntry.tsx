@@ -8,13 +8,17 @@ interface ImageEntryProps {
 }
 
 const ImageEntry: React.FC<ImageEntryProps> = ({ onSave }) => {
+    // state for managing image data and caption
     const [image, setImage] = useState<string | null>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [caption, setCaption] = useState('');
+
+    // properly type the refs
     const fileInputRef = useRef<HTMLInputElement>();
     const videoRef = useRef<HTMLVideoElement>();
     const streamRef = useRef<MediaStream | null>(null);
 
+    // handle image file selection
     const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
@@ -26,6 +30,11 @@ const ImageEntry: React.FC<ImageEntryProps> = ({ onSave }) => {
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    // handle click on upload button
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
     };
 
     return (
@@ -63,7 +72,7 @@ const ImageEntry: React.FC<ImageEntryProps> = ({ onSave }) => {
                         onChange={handleImageSelect}
                     />
                     <div className="flex gap-4 justify-center">
-                        <Button onClick={() => fileInputRef.current?.click()}>
+                        <Button onClick={handleUploadClick}>
                             Upload Image
                         </Button>
                     </div>
