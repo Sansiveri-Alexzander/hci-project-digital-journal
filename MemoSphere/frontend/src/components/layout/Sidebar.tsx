@@ -5,7 +5,6 @@ import {
     Home,
     Book,
     RefreshCw,
-    Settings,
     Search,
     X,
     PenLine,
@@ -29,7 +28,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         { icon: <Book className="h-5 w-5" />, label: 'All Entries', path: '/entries' },
         { icon: <RefreshCw className="h-5 w-5" />, label: 'Reflect', path: '/reflect' },
         { icon: <Search className="h-5 w-5" />, label: 'Search', path: '/search' },
-        { icon: <Settings className="h-5 w-5" />, label: 'Settings', path: '/settings' },
     ];
 
     const quickEntryButtons = [
