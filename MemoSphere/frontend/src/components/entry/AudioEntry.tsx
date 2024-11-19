@@ -3,14 +3,23 @@ import React, { useState, useRef } from 'react';
 import { Mic, Square } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AssemblyAI } from 'assemblyai';
 
 interface AudioEntryProps {
     onSave: (audioBlob: Blob | null) => void;
 }
 
+const client = new AssemblyAI({
+    apiKey: 'e00fcb246ffa4a358e10f30a2c7b392c',
+  });
+
 const AudioEntry: React.FC<AudioEntryProps> = ({ onSave }) => {
     const [isRecording, setIsRecording] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+    const [transcription, setTranscription] = useState<string | null>(null);
+    const [isTranscribing, setIsTranscribing] = useState(false);
+
     const [showRestartDialog, setShowRestartDialog] = useState(false);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
@@ -26,12 +35,21 @@ const AudioEntry: React.FC<AudioEntryProps> = ({ onSave }) => {
                 }
             };
 
-            mediaRecorderRef.current.onstop = () => {
-                const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+            mediaRecorderRef.current.onstop = async () => {
+                const blob = new Blob(chunksRef.current, { type: 'audio/mp3' });
                 const url = URL.createObjectURL(blob);
                 setAudioUrl(url);
                 onSave(blob);
                 chunksRef.current = [];
+                setIsTranscribing(true);
+                try {
+                    const transcript = await transcribeAudio(blob);
+                    setTranscription(transcript);
+                } catch (error) {
+                    console.error('Error during transcription:', error);
+                } finally {
+                    setIsTranscribing(false);
+                }
             };
 
             mediaRecorderRef.current.start();
@@ -47,6 +65,16 @@ const AudioEntry: React.FC<AudioEntryProps> = ({ onSave }) => {
             setIsRecording(false);
             mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
         }
+    };
+
+    // handles audio transcription
+    const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
+        const arrayBuffer = await audioBlob.arrayBuffer();
+        const response = await client.transcripts.transcribe({
+            audio: new Uint8Array(arrayBuffer),
+        });
+        
+        return response.text;
     };
 
     const handleRecordButton = () => {
@@ -85,15 +113,20 @@ const AudioEntry: React.FC<AudioEntryProps> = ({ onSave }) => {
             </Button>
 
             <p className="text-gray-600">
-                {isRecording ? "Recording..." : "Press to record"}
+                {isRecording ? 'Recording...' : isTranscribing ? 'Transcribing...' : 'Press to record'}
             </p>
 
             {audioUrl && (
+                <>
                 <audio
                     src={audioUrl}
                     controls
                     className="w-full max-w-md mt-4"
                 />
+                {/* print transcript if recording successful */}
+                {transcription && 
+                        <p className="mt-4 text-gray-800">Transcript: {transcription}</p>}
+                </>
             )}
 
             {/* Restart Dialog */}
