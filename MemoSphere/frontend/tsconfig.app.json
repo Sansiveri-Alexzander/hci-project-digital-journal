@@ -14,10 +14,10 @@
     },
 
     /* Bundler mode */
-    "moduleResolution": "Bundler",
-    "allowImportingTsExtensions": true,
+    "moduleResolution": "node",
+    //"allowImportingTsExtensions": true,
     "isolatedModules": true,
-    "moduleDetection": "force",
+    //"moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
 
@@ -26,7 +26,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
+    //"noUncheckedSideEffectImports": true,
     "allowSyntheticDefaultImports": true
   },
   "include": ["src"]
