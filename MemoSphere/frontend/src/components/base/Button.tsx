@@ -16,8 +16,6 @@ const Button: React.FC<ButtonProps> = ({
                                        }) => {
     return (
         <ShadcnButton
-            variant={variant}
-            size={size}
             className={`font-medium ${className}`}
             {...props}
         >

@@ -7,16 +7,24 @@ import AlertDialog from '../base/AlertDialog';
 
 // defines props for audio entry component
 interface AudioEntryProps {
-    onSave: (audioBlob: Blob) => void; // callback when audio is saved
-    onBack: () => void; // callback to go back
+    onSave: (data: { audio: Blob, title: string }) => void;
+    onBack: () => void;
+    title: string;
+    onTitleChange: (title: string) => void;
 }
 
-const AudioEntry: React.FC<AudioEntryProps> = ({ onSave, onBack }) => {
+const AudioEntry: React.FC<AudioEntryProps> = ({
+    onSave,
+    onBack,
+    title,
+    onTitleChange
+}) => {
     // state management
     const [isRecording, setIsRecording] = useState(false); // tracks recording status
     const [audioUrl, setAudioUrl] = useState<string | null>(null); // stores audio preview url
     const [showRestartDialog, setShowRestartDialog] = useState(false); // controls restart confirmation dialog
     const [isPending, setIsPending] = useState(false); // tracks save operation status
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
 
     // refs for managing audio recording
     const mediaRecorderRef = useRef<MediaRecorder | null>(null); // reference to media recorder
@@ -90,7 +98,7 @@ const AudioEntry: React.FC<AudioEntryProps> = ({ onSave, onBack }) => {
             setIsPending(true);
             const response = await fetch(audioUrl);
             const blob = await response.blob();
-            await onSave(blob);
+            await onSave({ audio: blob, title });
         } catch (error) {
             console.error('Error saving audio:', error);
         } finally {
@@ -107,7 +115,34 @@ const AudioEntry: React.FC<AudioEntryProps> = ({ onSave, onBack }) => {
                     <Button variant="ghost" onClick={onBack}>
                         <X className="h-5 w-5" />
                     </Button>
-                    <h2 className="text-xl font-semibold">Audio Entry</h2>
+                    
+                    {/* Editable Title */}
+                    <div className="relative">
+                        {isEditingTitle ? (
+                            <input
+                                type="text"
+                                value={title}
+                                onChange={(e) => onTitleChange(e.target.value)}
+                                onBlur={() => setIsEditingTitle(false)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        setIsEditingTitle(false);
+                                    }
+                                }}
+                                className="text-xl font-semibold bg-transparent border-b-2 border-primary outline-none px-2"
+                                autoFocus
+                            />
+                        ) : (
+                            <h2 
+                                className="text-xl font-semibold cursor-pointer hover:text-primary transition-colors"
+                                onClick={() => setIsEditingTitle(true)}
+                                title="Click to edit title"
+                            >
+                                {title || 'Untitled Entry'}
+                            </h2>
+                        )}
+                    </div>
+                    
                     <Button
                         onClick={handleSave}
                         disabled={!audioUrl || isPending}

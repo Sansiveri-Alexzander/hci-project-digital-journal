@@ -1,15 +1,4 @@
 // src/types/index.ts
-export type EntryType = 'text' | 'audio' | 'image';
-
-export interface Entry {
-    id: string;
-    type: EntryType;
-    content: string;
-    date: string;
-    title: string;
-    feeling?: string;
-    activities?: string[];
-}
 
 export interface User {
     id: string;
@@ -37,3 +26,5 @@ export interface ActivityOption {
     label: string;
     icon: React.ReactNode;
 }
+
+export * from './Entry';

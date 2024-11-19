@@ -29,7 +29,7 @@ const EntryInterface: React.FC<EntryInterfaceProps> = ({
                     {/* header section with consistent layout */}
                     <div className="flex items-center justify-between mb-6">
                         {/* back button with icon */}
-                        <Button variant="ghost" size="icon" onClick={onBack}>
+                        <Button onClick={onBack}>
                             <X className="h-5 w-5" />
                         </Button>
 
