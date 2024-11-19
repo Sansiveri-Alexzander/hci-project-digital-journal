@@ -26,7 +26,8 @@ const EntryInterface: React.FC<EntryInterfaceProps> = ({
             <Card>
                 <div className="p-6">
                     <div className="flex items-center justify-between mb-6">
-                        <Button variant="ghost" size="icon" onClick={onBack}>
+                        {/* back button with icon */}
+                        <Button onClick={onBack}>
                             <X className="h-5 w-5" />
                         </Button>
 
