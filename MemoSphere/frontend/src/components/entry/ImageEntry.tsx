@@ -1,35 +1,47 @@
 // src/components/entry/ImageEntry.tsx
 import React, { useState, useRef } from 'react';
-import { Camera, X, Image as ImageIcon } from 'lucide-react';
-import Button from '../base/Button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Camera, Image as ImageIcon, X } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from '../ui/card';
 
 interface ImageEntryProps {
-    onSave: (data: { image: File, caption: string }) => void; // callback for when image is saved
-    onBack: () => void; // callback for when user wants to go back
+    onSave: (data: { image: File, caption: string, title: string }) => void;
+    onBack: () => void;
+    title: string;
+    onTitleChange: (title: string) => void;
 }
 
-const ImageEntry: React.FC<ImageEntryProps> = ({ onSave, onBack }) => {
+const ImageEntry: React.FC<ImageEntryProps> = ({
+    onSave,
+    onBack,
+    title,
+    onTitleChange
+}) => {
     // state management for the component
     const [image, setImage] = useState<string | null>(null); // stores the image preview url
     const [imageFile, setImageFile] = useState<File | null>(null); // stores the actual image file
     const [caption, setCaption] = useState(''); // stores the image caption
     const [isPending, setIsPending] = useState(false); // tracks save operation status
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
 
     // refs for accessing DOM elements and managing camera stream
     const fileInputRef = useRef<HTMLInputElement>(null); // reference to hidden file input
     const videoRef = useRef<HTMLVideoElement>(null); // reference to video element for camera
     const streamRef = useRef<MediaStream | null>(null); // reference to active camera stream
 
-    // handles when user selects an image file
+    // handle image file selection
     const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
             setImageFile(file);
-            // create preview url for the image
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImage(reader.result as string);
+                onSave({
+                    image: file,
+                    caption,
+                    title: ''
+                });
             };
             reader.readAsDataURL(file);
         }
@@ -83,22 +95,54 @@ const ImageEntry: React.FC<ImageEntryProps> = ({ onSave, onBack }) => {
 
         try {
             setIsPending(true);
-            await onSave({ image: imageFile, caption });
+            await onSave({ image: imageFile, caption, title });
         } finally {
             setIsPending(false);
         }
     };
 
     // render component UI
+    // handle click on upload button
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
+    };
+
     return (
         <Card className="max-w-2xl mx-auto">
             <CardContent className="p-6">
                 {/* header with back button, title and save button */}
                 <div className="flex items-center justify-between mb-4">
-                    <Button variant="ghost" onClick={onBack}>
+                    <Button onClick={onBack}>
                         <X className="h-5 w-5" />
                     </Button>
-                    <h2 className="text-xl font-semibold">Image Entry</h2>
+
+                    {/* Editable Title */}
+                    <div className="relative">
+                        {isEditingTitle ? (
+                            <input
+                                type="text"
+                                value={title}
+                                onChange={(e) => onTitleChange(e.target.value)}
+                                onBlur={() => setIsEditingTitle(false)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        setIsEditingTitle(false);
+                                    }
+                                }}
+                                className="text-xl font-semibold bg-transparent border-b-2 border-primary outline-none px-2"
+                                autoFocus
+                            />
+                        ) : (
+                            <h2 
+                                className="text-xl font-semibold cursor-pointer hover:text-primary transition-colors"
+                                onClick={() => setIsEditingTitle(true)}
+                                title="Click to edit title"
+                            >
+                                {title || 'Untitled Entry'}
+                            </h2>
+                        )}
+                    </div>
+
                     <Button
                         onClick={handleSave}
                         disabled={!image || isPending}
@@ -159,7 +203,7 @@ const ImageEntry: React.FC<ImageEntryProps> = ({ onSave, onBack }) => {
                                         onChange={handleImageSelect}
                                     />
                                     <div className="flex gap-4 justify-center">
-                                        <Button onClick={() => fileInputRef.current?.click()}>
+                                        <Button onClick={handleUploadClick}>
                                             Upload Image
                                         </Button>
                                         <Button onClick={startCamera}>

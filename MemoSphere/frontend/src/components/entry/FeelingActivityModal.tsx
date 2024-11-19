@@ -131,11 +131,17 @@ const FeelingActivityModal: React.FC<FeelingActivityModalProps> = ({
         );
     };
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (step === 'feelings') {
             setStep('activities');
-        } else {
-            onSave(selectedFeelings, selectedActivities);
+        } else if (step === 'activities') {
+            try {
+                await onSave(selectedFeelings, selectedActivities);
+                onClose();
+            } catch (error) {
+                console.error('Error saving entry:', error);
+                // Optionally show an error message to the user
+            }
         }
     };
 
@@ -210,11 +216,11 @@ const FeelingActivityModal: React.FC<FeelingActivityModalProps> = ({
                     </div>
                     <div className="flex gap-2">
                         {step === 'activities' && (
-                            <Button variant="outline" onClick={handleBack}>
+                            <Button onClick={handleBack}>
                                 Back
                             </Button>
                         )}
-                        <Button variant="outline" onClick={onSkip}>
+                        <Button onClick={onSkip}>
                             Skip
                         </Button>
                         <Button onClick={handleNext} className="min-w-[80px]">
