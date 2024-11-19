@@ -1,6 +1,8 @@
 // src/components/entry/TextEntry.tsx
 import React, { useState } from 'react';
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from '../ui/button';
+import { X } from 'lucide-react';
+import { Card, CardContent } from '../ui/card';
 
 interface TextEntryProps {
     onSave: (content: string) => void;
@@ -44,7 +46,7 @@ const TextEntry: React.FC<TextEntryProps> = ({
         <Card className="max-w-2xl mx-auto">
             <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                    <Button variant="ghost" onClick={onBack}>
+                    <Button className="hover:bg-gray-100" onClick={onBack}>
                         <X className="h-5 w-5" />
                     </Button>
                     

@@ -1,8 +1,9 @@
 // src/components/entry/AudioEntry.tsx
 import React, { useState, useRef } from 'react';
-import { Mic, Square } from 'lucide-react';
+import { Mic, Square, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Card, CardContent } from '../ui/card';
 
 interface AudioEntryProps {
     onSave: (data: { audio: Blob, title: string }) => void;
@@ -44,7 +45,10 @@ const AudioEntry: React.FC<AudioEntryProps> = ({
                 const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
                 const url = URL.createObjectURL(blob);
                 setAudioUrl(url);
-                onSave(blob);
+                onSave({
+                    audio: blob,
+                    title: ''
+                });
                 chunksRef.current = [];
             };
 
@@ -78,7 +82,10 @@ const AudioEntry: React.FC<AudioEntryProps> = ({
             URL.revokeObjectURL(audioUrl);
             setAudioUrl(null);
         }
-        onSave(null); // Clear the saved audio
+        onSave({
+            audio: new Blob(),
+            title: ''
+        }); // Clear the saved audio
         setShowRestartDialog(false);
         startRecording();
     };
@@ -91,7 +98,10 @@ const AudioEntry: React.FC<AudioEntryProps> = ({
             setIsPending(true);
             const response = await fetch(audioUrl);
             const blob = await response.blob();
-            await onSave({ audio: blob, title });
+            await onSave({
+                audio: blob,
+                title
+            });
         } catch (error) {
             console.error('Error saving audio:', error);
         } finally {
@@ -105,7 +115,7 @@ const AudioEntry: React.FC<AudioEntryProps> = ({
             <CardContent className="p-6">
                 {/* header with back button, title and save button */}
                 <div className="flex items-center justify-between mb-4">
-                    <Button variant="ghost" onClick={onBack}>
+                    <Button onClick={onBack}>
                         <X className="h-5 w-5" />
                     </Button>
                     
@@ -147,9 +157,7 @@ const AudioEntry: React.FC<AudioEntryProps> = ({
                 {/* recording interface */}
                 <div className="flex flex-col items-center gap-4">
                     <Button
-                        size="lg"
-                        variant={isRecording ? "destructive" : "default"}
-                        className="rounded-full h-20 w-20 flex items-center justify-center"
+                        className={`rounded-full h-20 w-20 flex items-center justify-center ${isRecording ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : "bg-default text-default-foreground hover:bg-default/90"}`}
                         onClick={handleRecordButton}
                     >
                         {isRecording ? (
@@ -182,21 +190,23 @@ const AudioEntry: React.FC<AudioEntryProps> = ({
                     </p>
                     <DialogFooter className="flex gap-2">
                         <Button
-                            variant="outline"
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             onClick={() => setShowRestartDialog(false)}
                         >
                             Cancel
                         </Button>
                         <Button
-                            variant="destructive"
-                            onClick={handleRestart}
-                        >
-                            Start Over
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </div>
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={handleRestart}
+                            >
+                                Start Over
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+                </div>
+            </CardContent>
+        </Card>
     );
 };
 

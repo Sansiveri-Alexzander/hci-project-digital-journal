@@ -4,6 +4,10 @@ import { TextEntry, AudioEntry, ImageEntry } from '@/components/entry';
 import FeelingActivityModal from '@/components/entry/FeelingActivityModal';
 import { EntryManager } from '@/services/EntryManager';
 import { ContentType, Feeling, Activity } from '@/types/Entry';
+import { Card, CardContent } from '../ui/card';
+import { Button } from '../ui/button';
+import { X } from 'lucide-react';
+import PromptGenerator from '../entry/PromptGenerator';
 
 export const EntryCreate = () => {
     const { type } = useParams<{ type: string }>();
@@ -100,11 +104,11 @@ export const EntryCreate = () => {
 
         switch (type) {
             case 'text':
-                return <TextEntry onSave={handleContentUpdate} />;
+                return <TextEntry {...commonProps} />;
             case 'audio':
-                return <AudioEntry onSave={handleContentUpdate} />;
+                return <AudioEntry {...commonProps} />;
             case 'image':
-                return <ImageEntry onSave={handleContentUpdate} />;
+                return <ImageEntry {...commonProps} />;
             default:
                 return <div>Invalid entry type</div>;
         }
@@ -116,12 +120,12 @@ export const EntryCreate = () => {
                 <CardContent className="p-6">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-6">
-                        <Button variant="ghost" size="icon" onClick={handleBack}>
+                        <Button className="hover:bg-gray-100" onClick={handleBack}>
                             <X className="h-5 w-5" />
                         </Button>
                         <h2 className="text-xl font-semibold">{getEntryTitle()}</h2>
                         <Button
-                            onClick={handleSave}
+                            onClick={handleInitialSave}
                             disabled={!pendingContent.hasContent}
                         >
                             Save

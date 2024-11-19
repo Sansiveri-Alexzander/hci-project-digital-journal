@@ -1,7 +1,8 @@
 // src/components/entry/ImageEntry.tsx
 import React, { useState, useRef } from 'react';
-import { Camera, Image as ImageIcon } from 'lucide-react';
+import { Camera, Image as ImageIcon, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from '../ui/card';
 
 interface ImageEntryProps {
     onSave: (data: { image: File, caption: string, title: string }) => void;
@@ -36,7 +37,11 @@ const ImageEntry: React.FC<ImageEntryProps> = ({
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImage(reader.result as string);
-                onSave({ image: file, caption });
+                onSave({
+                    image: file,
+                    caption,
+                    title: ''
+                });
             };
             reader.readAsDataURL(file);
         }
@@ -107,7 +112,7 @@ const ImageEntry: React.FC<ImageEntryProps> = ({
             <CardContent className="p-6">
                 {/* header with back button, title and save button */}
                 <div className="flex items-center justify-between mb-4">
-                    <Button variant="ghost" onClick={onBack}>
+                    <Button onClick={onBack}>
                         <X className="h-5 w-5" />
                     </Button>
 
@@ -198,7 +203,7 @@ const ImageEntry: React.FC<ImageEntryProps> = ({
                                         onChange={handleImageSelect}
                                     />
                                     <div className="flex gap-4 justify-center">
-                                        <Button onClick={() => fileInputRef.current?.click()}>
+                                        <Button onClick={handleUploadClick}>
                                             Upload Image
                                         </Button>
                                         <Button onClick={startCamera}>
