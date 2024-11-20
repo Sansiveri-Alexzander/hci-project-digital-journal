@@ -1,4 +1,4 @@
-import { Entry, ContentType, Feeling, Activity, EntryContent, BinaryContent } from '@/types/Entry';
+import { Entry, ContentType, Feeling, Activity, EntryContent } from '@/types/Entry';
 import { EntryStorage } from './storage/EntryStorage';
 
 export class EntryManager {
@@ -14,7 +14,7 @@ export class EntryManager {
     }
 
     // Check if content is binary (Blob or File)
-    const isBinaryContent = (value: unknown): value is BinaryContent => {
+    const isBinaryContent = (value: unknown): value is Blob | File => {
       return value instanceof Blob || value instanceof File;
     };
 
