@@ -7,7 +7,7 @@ import { EntryManager } from '@/services/EntryManager';
 import EntryCard from '../base/EntryCard';
 import { REFLECTION_PROMPTS } from '../entry/PromptGenerator';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, X, Sparkles, ArrowRight, ArrowLeft, PenLine, Check, RotateCcw } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowLeft, PenLine, Check, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -17,6 +17,7 @@ export const Reflect = () => {
     const [currentPrompt, setCurrentPrompt] = useState<string>('');
     const [direction, setDirection] = useState<'left' | 'right' | null>(null);
     const [hasCompletedCycle, setHasCompletedCycle] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
     const navigate = useNavigate();
     const entryManager = new EntryManager();
 
@@ -76,13 +77,13 @@ export const Reflect = () => {
         setCurrentPrompt(REFLECTION_PROMPTS[randomIndex]);
     };
 
-    const handleSkip = () => {
+    // Modify handleSkip to handleNext
+    const handleNext = () => {
         setDirection('left');
         setTimeout(() => {
-            if (entries.length > 1) {
-                const nextEntries = entries.slice(1);
-                setEntries(nextEntries);
-                setCurrentEntry(nextEntries[0]);
+            if (currentIndex < entries.length - 1) {
+                setCurrentIndex(currentIndex + 1);
+                setCurrentEntry(entries[currentIndex + 1]);
                 setRandomPrompt();
             } else {
                 setCurrentEntry(null);
@@ -90,6 +91,19 @@ export const Reflect = () => {
             }
             setDirection(null);
         }, 300);
+    };
+
+    // Add handleBack function
+    const handleBack = () => {
+        if (currentIndex > 0) {
+            setDirection('right');
+            setTimeout(() => {
+                setCurrentIndex(currentIndex - 1);
+                setCurrentEntry(entries[currentIndex - 1]);
+                setRandomPrompt();
+                setDirection(null);
+            }, 300);
+        }
     };
 
     const handleRestartCycle = () => {
@@ -228,8 +242,8 @@ export const Reflect = () => {
                     </AnimatePresence>
                 </CardContent>
                 <CardFooter className="flex flex-col items-center gap-6 pt-6">
-                    {/* Action buttons with labels for clarity */}
                     <div className="flex justify-center gap-8">
+                        {/* Back Button */}
                         <motion.div
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -238,17 +252,21 @@ export const Reflect = () => {
                             <Button
                                 variant="outline"
                                 size="lg"
-                                onClick={handleSkip}
-                                className="rounded-full h-16 w-16 p-0 border-2"
-                                title="Show me another entry"
+                                onClick={handleBack}
+                                disabled={currentIndex === 0}
+                                className={`rounded-full h-16 w-16 p-0 border-2 ${
+                                    currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
+                                title="Previous entry"
                             >
                                 <ArrowLeft className="h-8 w-8 text-muted-foreground" />
                             </Button>
                             <span className="text-sm text-muted-foreground">
-                                Skip this entry
+                                Previous
                             </span>
                         </motion.div>
 
+                        {/* Reflect Button */}
                         <motion.div
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -263,14 +281,34 @@ export const Reflect = () => {
                                 <Sparkles className="h-8 w-8 text-primary-foreground" />
                             </Button>
                             <span className="text-sm font-medium text-primary">
-                                Reflect on this
+                                Reflect
+                            </span>
+                        </motion.div>
+
+                        {/* Next Button */}
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex flex-col items-center gap-2"
+                        >
+                            <Button
+                                variant="outline"
+                                size="lg"
+                                onClick={handleNext}
+                                className="rounded-full h-16 w-16 p-0 border-2"
+                                title="Next entry"
+                            >
+                                <ArrowRight className="h-8 w-8 text-muted-foreground" />
+                            </Button>
+                            <span className="text-sm text-muted-foreground">
+                                Next
                             </span>
                         </motion.div>
                     </div>
 
                     {/* Progress indicator */}
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span>Entry {entries.length - entries.indexOf(currentEntry)} of {entries.length}</span>
+                        <span>Entry {currentIndex + 1} of {entries.length}</span>
                     </div>
                 </CardFooter>
             </Card>
