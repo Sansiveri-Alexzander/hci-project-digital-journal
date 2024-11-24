@@ -1,0 +1,23 @@
+.reflection-chain-transition {
+    transition: all 0.2s ease-in-out;
+}
+
+.reflection-chain-enter {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.reflection-chain-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reflection-chain-exit {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reflection-chain-exit-active {
+    opacity: 0;
+    transform: translateY(-10px);
+}
