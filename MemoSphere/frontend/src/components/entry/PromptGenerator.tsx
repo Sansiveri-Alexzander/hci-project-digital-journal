@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Lightbulb, RefreshCw } from "lucide-react";
+import { Lightbulb, RefreshCw, Sparkles } from "lucide-react";
+
+interface PromptGeneratorProps {
+    onPromptSelect: (prompt: string) => void;
+}
 
 const PROMPTS = [
     "What made you smile today?",
@@ -20,39 +24,46 @@ const PROMPTS = [
     "How do you feel right now and why?"
 ];
 
-const PromptGenerator = () => {
-    const [currentPrompt, setCurrentPrompt] = useState<string | null>(null);
+const PromptGenerator = ({ onPromptSelect }: PromptGeneratorProps) => {
+    const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
 
-    const generateNewPrompt = () => {
-        const randomIndex = Math.floor(Math.random() * PROMPTS.length);
-        setCurrentPrompt(PROMPTS[randomIndex]);
+    const getRandomPrompt = () => {
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * PROMPTS.length);
+        } while (PROMPTS[randomIndex] === selectedPrompt);
+        setSelectedPrompt(PROMPTS[randomIndex]);
+        onPromptSelect(PROMPTS[randomIndex]);
     };
 
     return (
-        <div className="mb-6">
-            {currentPrompt ? (
-                <div className="bg-muted rounded-lg p-4 flex items-center justify-between">
-                    <p className="flex-1 text-muted-foreground">
-                        {currentPrompt}
-                    </p>
+        <div className="flex items-center gap-4 justify-center">
+            {selectedPrompt ? (
+                <>
+                    <div className="mt-2 p-4 bg-muted/50 rounded-lg">
+                        <p className="text-sm italic text-muted-foreground">
+                            {selectedPrompt}
+                        </p>
+                    </div>
+
                     <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={generateNewPrompt}
-                        className="ml-2 h-8 w-8 shrink-0"
-                        title="Try another prompt"
+                        variant="outline"
+                        onClick={getRandomPrompt}
+                        className="flex items-center gap-2"
+                        size="sm"
                     >
                         <RefreshCw className="h-4 w-4" />
+                        New Prompt
                     </Button>
-                </div>
+                </>
             ) : (
-                <Button
+                <Button 
                     variant="outline"
-                    className="w-full"
-                    onClick={generateNewPrompt}
+                    onClick={getRandomPrompt}
+                    className="flex items-center gap-2"
                 >
-                    <Lightbulb className="h-4 w-4 mr-2" />
-                    Generate Entry Prompt
+                    <Sparkles className="h-4 w-4" />
+                    Generate Writing Prompt
                 </Button>
             )}
         </div>

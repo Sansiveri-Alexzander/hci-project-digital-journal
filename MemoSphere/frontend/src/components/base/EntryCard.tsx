@@ -17,28 +17,40 @@ const EntryTypeIcon = {
 const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick }) => {
     const { title, date, content, contentType, feelings, activities } = entry;
     const [imageUrl, setImageUrl] = useState<string | null>(null);
-    
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
     useEffect(() => {
-        if (contentType === 'image' && content instanceof Blob) {
-            const url = URL.createObjectURL(content);
-            setImageUrl(url);
-            return () => URL.revokeObjectURL(url);
-        } else if (contentType === 'image' && typeof content === 'string') {
-            setImageUrl(content);
+        if (contentType === 'image') {
+            try {
+                const imageContent = typeof content === 'string' 
+                    ? JSON.parse(content)
+                    : content;
+                setImageUrl(imageContent.imageData);
+            } catch (error) {
+                console.error('Error parsing image content:', error);
+            }
+        } else if (contentType === 'audio' && typeof content === 'string') {
+            setAudioUrl(content);
         }
     }, [content, contentType]);
 
     const renderContentPreview = () => {
         switch (contentType) {
             case 'text':
-                return <p className="text-gray-600 text-sm line-clamp-3">{content as string}</p>;
+                return (
+                    <div className="h-32 overflow-hidden">
+                        <p className="text-gray-600 text-sm line-clamp-5">
+                            {content as string}
+                        </p>
+                    </div>
+                );
             case 'image':
                 return imageUrl ? (
                     <div className="aspect-[3/2] w-full rounded-md overflow-hidden bg-gray-100">
                         <img 
                             src={imageUrl}
                             alt="Entry preview" 
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
                         />
                     </div>
                 ) : (
@@ -48,8 +60,21 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick }) => {
                 );
             case 'audio':
                 return (
-                    <div className="flex items-center justify-center h-24 bg-gray-50 rounded-md">
-                        <Mic className="h-8 w-8 text-gray-400" />
+                    <div className="h-32 bg-gray-50 rounded-md p-4">
+                        <div className="flex items-center justify-between mb-4">
+                            <Mic className="h-6 w-6 text-primary" />
+                            <div className="flex-1 mx-4">
+                                <div className="h-1 bg-primary/20 rounded-full">
+                                    <div className="h-1 bg-primary rounded-full w-2/3" />
+                                </div>
+                            </div>
+                            <span className="text-xs text-gray-500">00:00</span>
+                        </div>
+                        {audioUrl && (
+                            <audio controls className="w-full mt-2">
+                                <source src={audioUrl} type="audio/webm" />
+                            </audio>
+                        )}
                     </div>
                 );
             default:
@@ -59,16 +84,15 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick }) => {
 
     return (
         <Card
-            className="cursor-pointer hover:shadow-md transition-all hover:-translate-y-1 duration-200"
+            className="cursor-pointer hover:shadow-md transition-all hover:-translate-y-1 duration-200 overflow-hidden"
             onClick={onClick}
         >
             <CardHeader className="p-4 pb-2 space-y-2">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-1.5 text-primary">
                         {EntryTypeIcon[contentType]}
                         <span className="capitalize font-medium">{contentType}</span>
                     </div>
-                    <span>•</span>
                     <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {new Date(date).toLocaleDateString()}
@@ -80,11 +104,11 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick }) => {
                 </CardTitle>
             </CardHeader>
 
-            <CardContent className="p-4 pt-0 space-y-4">
+            <CardContent className="p-4 pt-2 space-y-4">
                 {renderContentPreview()}
 
                 {(feelings.length > 0 || activities.length > 0) && (
-                    <div className="flex flex-wrap gap-2 pt-2">
+                    <div className="flex flex-wrap gap-1.5 pt-2">
                         {feelings.map(feeling => (
                             <span
                                 key={feeling.id}

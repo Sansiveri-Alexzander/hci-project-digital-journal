@@ -21,6 +21,7 @@ export interface BaseEntry {
   activities: Activity[];
   isReflection: boolean;
   linkedEntryId?: string; // Optional reference to another entry if this is a reflection
+  prompt?: string;
 }
 
 // No need for separate interfaces since the only difference is the optional linkedEntryId

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardContent, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Heart, Activity, PenLine, Mic, Image, Trash2 } from 'lucide-react';
+import { ArrowLeft, Calendar, Heart, Activity, PenLine, Mic, Image, Trash2, Sparkles } from 'lucide-react';
 import { Entry } from '@/types/Entry';
 import { EntryManager } from '@/services/EntryManager';
 import ConfirmationModal from '@/components/entry/ConfirmationModal';
@@ -74,28 +74,37 @@ export const ViewEntry = () => {
     const renderContent = () => {
         if (!entry) return null;
 
-        switch (entry.contentType) {
-            case 'text':
-                return <p className="text-gray-700 whitespace-pre-wrap">{entry.content as string}</p>;
-            case 'audio':
-                return (
-                    <audio controls className="w-full mt-4">
-                        <source src={entry.content as string} type="audio/webm" />
-                        Your browser does not support the audio element.
-                    </audio>
-                );
-            case 'image':
-                return (
-                    <div className="mt-4">
-                        <img
-                            src={typeof entry.content === 'string' ? entry.content : URL.createObjectURL(entry.content as File)}
-                            alt="Entry"
-                            className="rounded-lg max-h-96 w-full object-cover"
-                        />
-                    </div>
-                );
-            default:
-                return null;
+    switch (entry.contentType) {
+        case 'text':
+            return <p className="text-gray-700 whitespace-pre-wrap">{entry.content as string}</p>;
+        case 'audio':
+            return (
+                <audio controls className="w-full mt-4">
+                    <source src={entry.content as string} type="audio/webm" />
+                    Your browser does not support the audio element.
+                </audio>
+            );
+        case 'image':
+            const imageContent = typeof entry.content === 'string' 
+                ? JSON.parse(entry.content)
+                : entry.content;
+            
+            return (
+                <div className="mt-4 space-y-2">
+                    <img
+                        src={imageContent.imageData}
+                        alt="Entry"
+                        className="rounded-lg max-h-96 w-full object-cover"
+                    />
+                    {imageContent.caption && (
+                        <p className="text-sm text-gray-600 italic">
+                            {imageContent.caption}
+                        </p>
+                    )}
+                </div>
+            );
+        default:
+            return null;
         }
     };
 
@@ -143,7 +152,7 @@ export const ViewEntry = () => {
                 </button>
             </div>
 
-            {/* Add Delete Confirmation Modal */}
+            {/* Confirmation Modal */}
             <ConfirmationModal
                 isOpen={showDeleteModal}
                 onConfirm={handleDeleteConfirm}
@@ -164,12 +173,15 @@ export const ViewEntry = () => {
                             {new Date(entry.date).toLocaleDateString()}
                         </div>
                     </div>
-                    
-                    {/* Entry Type Badge */}
-                    <div className="flex items-center gap-1.5 text-sm font-medium text-primary">
-                        {EntryTypeIcon[entry.contentType]}
-                        <span className="capitalize">{entry.contentType} Entry</span>
-                    </div>
+
+                    {/* Add Prompt Display */}
+                    {entry?.prompt && (
+                        <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-border/50">
+                            <p className="text-base text-muted-foreground pl-6 border-l-2 border-primary/20 italic">
+                                "{entry.prompt}"
+                            </p>
+                        </div>
+                    )}
                 </CardHeader>
 
                 <CardContent className="space-y-6">

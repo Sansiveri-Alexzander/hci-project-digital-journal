@@ -24,10 +24,9 @@ export const EntryCreate = () => {
     const navigate = useNavigate();
     const [currentType, setCurrentType] = useState<ContentType>(type as ContentType);
     const [showReflection, setShowReflection] = useState(false);
-    const [showSwitchModal, setShowSwitchModal] = useState(false);
     const [showUnsavedModal, setShowUnsavedModal] = useState(false);
     const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
-    const [pendingTypeSwitch, setPendingTypeSwitch] = useState<ContentType | null>(null);
+    const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
     const entryManager = new EntryManager();
     const [pendingContent, setPendingContent] = useState<PendingEntry>({
         type: type as ContentType,
@@ -35,27 +34,10 @@ export const EntryCreate = () => {
         hasContent: false,
         title: ''
     });
-    
-    //  // Modal handlers
-    //  const handleModalConfirm = () => {
-    //     if (pendingTypeSwitch) {
-    //         setCurrentType(pendingTypeSwitch);
-    //         setPendingContent({
-    //             type: pendingTypeSwitch,
-    //             content: '',
-    //             hasContent: false,
-    //             title: ''
-    //         });
-    //     }
-    //     setShowSwitchModal(false);
-    //     setPendingTypeSwitch(null);
-    // };
 
-    // const handleModalCancel = () => {
-    //     setShowSwitchModal(false);
-    //     setPendingTypeSwitch(null);
-    // };
-    
+    const handlePromptSelect = (prompt: string) => {
+        setSelectedPrompt(prompt);
+    };
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPendingContent(prev => ({
@@ -162,7 +144,9 @@ export const EntryCreate = () => {
             entryTitle,
             feelings.map(feeling => ({ id: feeling, name: feeling, intensity: 1 })),
             activities.map(activity => ({ id: activity, name: activity })),
-            false  // isReflection
+            false,  // isReflection
+            undefined,  // linkedEntryId
+            selectedPrompt || undefined  // prompt
         );
         navigate('/entries');
     };
@@ -178,22 +162,15 @@ export const EntryCreate = () => {
                 entryTitle,
                 [],  // empty feelings array
                 [],  // empty activities array
-                false  // isReflection
+                false,  // isReflection
+                undefined,  // linkedEntryId
+                selectedPrompt || undefined  // prompt
             );
 
             navigate('/entries');
         } catch (error) {
             console.error('Error saving entry without reflections:', error);
             // You might want to show an error message to the user here
-        }
-    };
-
-    const getEntryTitle = () => {
-        switch (currentType) {
-            case 'text': return 'Text Entry';
-            case 'audio': return 'Audio Entry';
-            case 'image': return 'Image Entry';
-            default: return 'New Entry';
         }
     };
 
@@ -239,7 +216,7 @@ export const EntryCreate = () => {
 
                     {/* Entry Type Switcher - Moved to bottom */}
                     <div className="mb-6">
-                        <PromptGenerator />
+                        <PromptGenerator onPromptSelect={handlePromptSelect} />
                     </div>
 
                     {/* Entry Component */}
