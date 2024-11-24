@@ -1,22 +1,27 @@
 // src/pages/EntryCreate.tsx
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { TextEntry, AudioEntry, ImageEntry, EntryType } from '@/components/entry';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { TextEntry, AudioEntry, ImageEntry } from '@/components/entry';
 import FeelingActivityModal from '@/components/entry/FeelingActivityModal';
 import PromptGenerator from '@/components/entry/PromptGenerator';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, Mic, Type, X } from "lucide-react";
 import { ContentType, Entry } from '@/types/Entry';
 import ConfirmationModal from '../entry/ConfirmationModal';
 import { Input } from '@/components/ui/input';
 import { EntryManager } from '@/services/EntryManager';
+import EntryCard from '../base/EntryCard';
+import { ChevronDown, ChevronUp, ImageIcon, Mic, Type, X } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { REFLECTION_PROMPTS } from '../entry/PromptGenerator';
 
 interface PendingEntry {
     type: ContentType;
     content: string | Blob | File | { image: File, caption: string };
     hasContent: boolean;
     title: string;
+    isReflection: boolean;
+    linkedEntryId?: string;
 }
 
 export const EntryCreate = () => {
@@ -27,13 +32,47 @@ export const EntryCreate = () => {
     const [showUnsavedModal, setShowUnsavedModal] = useState(false);
     const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
     const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
+    const [searchParams] = useSearchParams();
+    const reflectionEntryId = searchParams.get('reflectOn');
+    const [reflectionChain, setReflectionChain] = useState<Entry[]>([]);
+    const [isChainExpanded, setIsChainExpanded] = useState(false);
     const entryManager = new EntryManager();
     const [pendingContent, setPendingContent] = useState<PendingEntry>({
         type: type as ContentType,
         content: '',
         hasContent: false,
-        title: ''
+        title: '',
+        isReflection: !!reflectionEntryId,
+        linkedEntryId: reflectionEntryId || undefined
     });
+    const initialPrompt = () => {
+        if (pendingContent.isReflection) {
+            const prompts = Object.values(REFLECTION_PROMPTS);
+            const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+            return randomPrompt;
+        }
+        return null;
+    }
+
+    useEffect(() => {
+        const loadReflectionChain = async () => {
+            if (reflectionEntryId) {
+                let currentEntryId = reflectionEntryId;
+                const chain: Entry[] = [];
+                
+                while (currentEntryId) {
+                    const entry = await entryManager.getEntryById(currentEntryId);
+                    if (!entry) break;
+                    chain.push(entry);
+                    currentEntryId = entry.linkedEntryId || '';
+                }
+                
+                setReflectionChain(chain);
+            }
+        };
+        
+        loadReflectionChain();
+    }, [reflectionEntryId]);
 
     const handlePromptSelect = (prompt: string) => {
         setSelectedPrompt(prompt);
@@ -57,7 +96,9 @@ export const EntryCreate = () => {
                     type: newType,
                     content: '',
                     hasContent: false,
-                    title: pendingContent.title
+                    title: pendingContent.title,
+                    isReflection: pendingContent.isReflection,
+                    linkedEntryId: pendingContent.linkedEntryId
                 });
             });
             setShowUnsavedModal(true);
@@ -67,7 +108,9 @@ export const EntryCreate = () => {
                 type: newType,
                 content: '',
                 hasContent: false,
-                title: pendingContent.title
+                title: pendingContent.title,
+                isReflection: pendingContent.isReflection,
+                linkedEntryId: pendingContent.linkedEntryId
             });
         }
     };
@@ -108,7 +151,9 @@ export const EntryCreate = () => {
             type: currentType,
             content,
             hasContent,
-            title: pendingContent.title
+            title: pendingContent.title,
+            isReflection: pendingContent.isReflection,
+            linkedEntryId: pendingContent.linkedEntryId
         });
     };
 
@@ -144,8 +189,8 @@ export const EntryCreate = () => {
             entryTitle,
             feelings.map(feeling => ({ id: feeling, name: feeling, intensity: 1 })),
             activities.map(activity => ({ id: activity, name: activity })),
-            false,  // isReflection
-            undefined,  // linkedEntryId
+            pendingContent.isReflection,
+            pendingContent.linkedEntryId,
             selectedPrompt || undefined  // prompt
         );
         navigate('/entries');
@@ -162,8 +207,8 @@ export const EntryCreate = () => {
                 entryTitle,
                 [],  // empty feelings array
                 [],  // empty activities array
-                false,  // isReflection
-                undefined,  // linkedEntryId
+                pendingContent.isReflection,
+                pendingContent.linkedEntryId,
                 selectedPrompt || undefined  // prompt
             );
 
@@ -173,6 +218,72 @@ export const EntryCreate = () => {
             // You might want to show an error message to the user here
         }
     };
+
+    // Add this section to the JSX before the entry component
+    const renderReflectionChain = () => {
+        if (!reflectionChain.length) return null;
+
+        const handleEntryClick = (entryId: string) => {
+            navigate(`/entry/${entryId}`);
+        };
+
+        // If there's only one entry, just show it without the collapsible
+        if (reflectionChain.length === 1) {
+            return (
+                <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-2">Reflecting on</h3>
+                    <EntryCard 
+                        entry={reflectionChain[0]} 
+                        mode="summary" 
+                        isReflectionTarget={true}
+                        onClick={() => handleEntryClick(reflectionChain[0].id)}
+                    />
+                </div>
+            );
+        }
+
+        // If there are multiple entries, show the collapsible UI
+        return (
+            <div className="mb-6">
+                <Collapsible open={isChainExpanded} onOpenChange={setIsChainExpanded}>
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-semibold">Reflecting on</h3>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                                {isChainExpanded ? (
+                                    <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                    <ChevronDown className="h-4 w-4" />
+                                )}
+                            </Button>
+                        </CollapsibleTrigger>
+                    </div>
+
+                    <EntryCard 
+                        entry={reflectionChain[0]} 
+                        mode="summary" 
+                        isReflectionTarget={true}
+                        onClick={() => handleEntryClick(reflectionChain[0].id)}
+                    />
+
+                    <CollapsibleContent>
+                        {reflectionChain.slice(1).map((entry) => (
+                            <div key={entry.id} className="mt-4">
+                                <EntryCard 
+                                    entry={entry} 
+                                    mode="summary"
+                                    isReflectionTarget={false}
+                                    onClick={() => handleEntryClick(entry.id)}
+                                />
+                            </div>
+                        ))}
+                    </CollapsibleContent>
+                </Collapsible>
+            </div>
+        );
+    };
+
+    
 
     const renderEntryComponent = () => {
         switch (currentType) {
@@ -214,9 +325,15 @@ export const EntryCreate = () => {
                         </Button>
                     </div>
 
-                    {/* Entry Type Switcher - Moved to bottom */}
+                    {/* Add reflection chain */}
+                    {renderReflectionChain()}
+
                     <div className="mb-6">
-                        <PromptGenerator onPromptSelect={handlePromptSelect} />
+                        <PromptGenerator 
+                            onPromptSelect={handlePromptSelect}
+                            reflection={pendingContent.isReflection}
+                            initialPrompt={initialPrompt()}
+                        />
                     </div>
 
                     {/* Entry Component */}

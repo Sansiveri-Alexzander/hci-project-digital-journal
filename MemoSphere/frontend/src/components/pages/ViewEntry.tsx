@@ -6,6 +6,9 @@ import { ArrowLeft, Calendar, Heart, Activity, PenLine, Mic, Image, Trash2, Spar
 import { Entry } from '@/types/Entry';
 import { EntryManager } from '@/services/EntryManager';
 import ConfirmationModal from '@/components/entry/ConfirmationModal';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import EntryCard from '../base/EntryCard';
 
 
 
@@ -22,6 +25,8 @@ export const ViewEntry = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [reflectionChain, setReflectionChain] = useState<Entry[]>([]);
+    const [isChainExpanded, setIsChainExpanded] = useState(false);
     
     const entryManager = new EntryManager();
 
@@ -60,6 +65,21 @@ export const ViewEntry = () => {
                 }
                 
                 setEntry(loadedEntry);
+
+                // Load reflection chain if this is a reflection
+                if (loadedEntry.isReflection && loadedEntry.linkedEntryId) {
+                    let currentEntryId = loadedEntry.linkedEntryId;
+                    const chain: Entry[] = [];
+                    
+                    while (currentEntryId) {
+                        const chainEntry = await entryManager.getEntryById(currentEntryId);
+                        if (!chainEntry) break;
+                        chain.push(chainEntry);
+                        currentEntryId = chainEntry.linkedEntryId || '';
+                    }
+                    
+                    setReflectionChain(chain);
+                }
             } catch (err) {
                 setError('Failed to load entry');
                 console.error('Error loading entry:', err);
@@ -70,6 +90,91 @@ export const ViewEntry = () => {
 
         loadEntry();
     }, [id]);
+
+    const renderReflectionChain = () => {
+        if (!entry?.isReflection || reflectionChain.length === 0) return null;
+
+        const handleEntryClick = (entryId: string) => {
+            navigate(`/entries/${entryId}`);
+        };
+
+        // If there's only one entry, just show it without the collapsible
+        if (reflectionChain.length === 1) {
+            return (
+                <div className="mb-6">
+                    <div className="flex flex-col gap-2 mb-2">
+                    <h3 className="text-lg font-semibold">Reflecting on</h3>
+                    <p className="text-sm text-muted-foreground">
+                        Entry from {new Date(reflectionChain[0].date).toLocaleDateString()}
+                    </p>
+                </div>
+                    <EntryCard 
+                        entry={reflectionChain[0]} 
+                        mode="summary" 
+                        isReflectionTarget={true}
+                        onClick={() => handleEntryClick(reflectionChain[0].id)}
+                    />
+                </div>
+            );
+        }
+
+        // If there's only one entry, just show it without the collapsible
+        return (
+            <div className="mb-6">
+                <Collapsible open={isChainExpanded} onOpenChange={setIsChainExpanded}>
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex flex-col gap-1">
+                            <h3 className="text-lg font-semibold">Reflection Chain</h3>
+                            <p className="text-sm text-muted-foreground">
+                                {reflectionChain.length} connected entries
+                            </p>
+                        </div>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                                {isChainExpanded ? (
+                                    <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                    <ChevronDown className="h-4 w-4" />
+                                )}
+                            </Button>
+                        </CollapsibleTrigger>
+                    </div>
+    
+                    {/* Always show the first entry being reflected upon */}
+                    <div className="relative">
+                        <EntryCard 
+                            entry={reflectionChain[0]} 
+                            mode="summary" 
+                            isReflectionTarget={true}
+                            onClick={() => handleEntryClick(reflectionChain[0].id)}
+                        />
+                        <span className="text-xs text-primary font-medium mt-1 ml-4 block">
+                            Entry being reflected on
+                        </span>
+                    </div>
+    
+                    <CollapsibleContent>
+                        <div className="space-y-4 mt-4">
+                            {reflectionChain.slice(1).map((chainEntry, index) => (
+                                <div key={chainEntry.id} className="relative">
+                                    <div className="absolute -top-2 left-4 h-4 w-px bg-primary/30" />
+                                    <EntryCard 
+                                        entry={chainEntry} 
+                                        mode="summary"
+                                        isReflectionTarget={false}
+                                        onClick={() => handleEntryClick(chainEntry.id)}
+                                    />
+                                    <span className="text-xs text-muted-foreground mt-1 ml-4 block">
+                                        {index === reflectionChain.length - 2 ? 'First entry in chain' : 'Earlier reflection'}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </CollapsibleContent>
+                </Collapsible>
+            </div>
+        );
+    };
 
     const renderContent = () => {
         if (!entry) return null;
@@ -174,10 +279,13 @@ export const ViewEntry = () => {
                         </div>
                     </div>
 
+                    {/* Show reflection chain if this is a reflection */}
+                    {renderReflectionChain()}
+
                     {/* Add Prompt Display */}
                     {entry?.prompt && (
-                        <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-border/50">
-                            <p className="text-base text-muted-foreground pl-6 border-l-2 border-primary/20 italic">
+                        <div className={`mt-4 p-4 ${entry.isReflection ? 'bg-primary/5' : 'bg-muted/50'} rounded-lg border border-border/50`}>
+                            <p className={`text-base ${entry.isReflection ? 'text-primary/80' : 'text-muted-foreground'} pl-6 border-l-2 border-primary/20 italic`}>
                                 "{entry.prompt}"
                             </p>
                         </div>
@@ -227,7 +335,7 @@ export const ViewEntry = () => {
                 <CardFooter className="flex justify-end space-x-2">
                     <Button
                         type="button"
-                        onClick={() => navigate(`/reflect?entryId=${entry.id}`)}
+                        onClick={() => navigate(`/create/text?reflectOn=${entry.id}`)}
                     >
                         Reflect!
                     </Button>

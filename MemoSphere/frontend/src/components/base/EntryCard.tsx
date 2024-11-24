@@ -6,6 +6,8 @@ import { Calendar, PenLine, Mic, Image, Heart, Activity } from 'lucide-react';
 interface EntryCardProps {
     entry: Entry;
     onClick?: () => void;
+    mode?: 'full' | 'summary';
+    isReflectionTarget?: boolean;
 }
 
 const EntryTypeIcon = {
@@ -14,7 +16,7 @@ const EntryTypeIcon = {
     'image': <Image className="h-4 w-4" />
 };
 
-const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick }) => {
+const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick, mode = 'full', isReflectionTarget = false}) => {
     const { title, date, content, contentType, feelings, activities } = entry;
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -37,6 +39,16 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick }) => {
     const renderContentPreview = () => {
         switch (contentType) {
             case 'text':
+                if (mode === 'summary') {
+                    return (
+                        <div className="h-24 overflow-hidden">
+                            <p className="text-gray-600 text-sm line-clamp-3">
+                                {(content as string).substring(0, 150)}
+                                {(content as string).length > 150 && '...'}
+                            </p>
+                        </div>
+                    );
+                }
                 return (
                     <div className="h-32 overflow-hidden">
                         <p className="text-gray-600 text-sm line-clamp-5">
@@ -84,14 +96,29 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick }) => {
 
     return (
         <Card
-            className="cursor-pointer hover:shadow-md transition-all hover:-translate-y-1 duration-200 overflow-hidden"
+            className={`
+                ${mode === 'summary' ? 'bg-muted/50' : ''} 
+                ${isReflectionTarget ? 'border-primary/50 border-2' : ''}
+                ${onClick ? 'cursor-pointer hover:shadow-md transition-all hover:-translate-y-1' : ''}
+                duration-200 overflow-hidden
+                group
+            `}
             onClick={onClick}
+            role={onClick ? "button" : undefined}
+            tabIndex={onClick ? 0 : undefined}
         >
             <CardHeader className="p-4 pb-2 space-y-2">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1.5 text-primary">
-                        {EntryTypeIcon[contentType]}
-                        <span className="capitalize font-medium">{contentType}</span>
+                    <div className="flex items-center gap-1.5">
+                        {isReflectionTarget && (
+                            <span className="text-primary font-medium mr-2">
+                                Reflecting on:
+                            </span>
+                        )}
+                        <div className={`flex items-center gap-1.5 ${isReflectionTarget ? 'text-primary' : ''}`}>
+                            {EntryTypeIcon[contentType]}
+                            <span className="capitalize font-medium">{contentType}</span>
+                        </div>
                     </div>
                     <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
