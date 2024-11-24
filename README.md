@@ -1,6 +1,10 @@
 <div align="center">
   <img src="https://github.com/user-attachments/assets/20a65888-9542-450c-8b9a-a684a16c52f9" width="200" height="200"/>
 </div>
+<div align="center">
+  <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white"/>
+  <img src="https://img.shields.io/badge/shadcn%2Fui-000000?style=for-the-badge&logo=shadcnui&logoColor=white"/>
+</div>
 
 # MemoSphere
 
