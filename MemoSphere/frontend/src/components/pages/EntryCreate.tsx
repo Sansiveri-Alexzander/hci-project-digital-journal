@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ImageIcon, Mic, Type, X } from "lucide-react";
 import { ContentType } from '@/types/Entry';
+import ConfirmationModal from '../entry/ConfirmationModal';
 
 interface PendingEntry {
     type: ContentType;
@@ -21,6 +22,8 @@ export const EntryCreate = () => {
     const [currentType, setCurrentType] = useState<ContentType>(type as ContentType);
     const [showReflection, setShowReflection] = useState(false);
     const [showSwitchModal, setShowSwitchModal] = useState(false);
+    const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+    const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
     const [pendingTypeSwitch, setPendingTypeSwitch] = useState<ContentType | null>(null);
     const [pendingContent, setPendingContent] = useState<PendingEntry>({
         type: type as ContentType,
@@ -52,11 +55,17 @@ export const EntryCreate = () => {
         if (newType === currentType) return;
     
         if (pendingContent.hasContent) {
-            setPendingTypeSwitch(newType);
-            setShowSwitchModal(true);
+            setPendingAction(() => () => {
+                setCurrentType(newType);
+                setPendingContent({
+                    type: newType,
+                    content: '',
+                    hasContent: false
+                });
+            });
+            setShowUnsavedModal(true);
         } else {
             setCurrentType(newType);
-            // Reset content when switching types
             setPendingContent({
                 type: newType,
                 content: '',
@@ -66,21 +75,39 @@ export const EntryCreate = () => {
     };
 
     const handleBack = () => {
-        navigate('/');
+        if (pendingContent.hasContent) {
+            setPendingAction(() => () => navigate('/'));
+            setShowUnsavedModal(true);
+        } else {
+            navigate('/');
+        }
+    };
+
+    const handleUnsavedConfirm = () => {
+        if (pendingAction) {
+            pendingAction();
+        }
+        setShowUnsavedModal(false);
+        setPendingAction(null);
+    };
+
+    const handleUnsavedCancel = () => {
+        setShowUnsavedModal(false);
+        setPendingAction(null);
     };
 
     const handleContentUpdate = (content: any) => {
         let hasContent = false;
-        if (type === 'text') {
+        if (currentType === 'text') {
             hasContent = content.trim().length > 0;
-        } else if (type === 'audio') {
+        } else if (currentType === 'audio') {
             hasContent = content instanceof Blob;
-        } else if (type === 'image') {
+        } else if (currentType === 'image') {
             hasContent = content.image instanceof File;
         }
 
         setPendingContent({
-            type: type as 'text' | 'audio' | 'image',
+            type: currentType,
             content,
             hasContent
         });
@@ -94,7 +121,7 @@ export const EntryCreate = () => {
 
     const handleReflectionSave = (feelings: string[], activities: string[]) => {
         console.log('Saving entry:', {
-            type,
+            type: currentType,
             content: pendingContent.content,
             feelings,
             activities
@@ -104,7 +131,7 @@ export const EntryCreate = () => {
 
     const handleReflectionSkip = () => {
         console.log('Saving entry without reflections:', {
-            type,
+            type: currentType,
             content: pendingContent.content
         });
         navigate('/entries');
@@ -201,6 +228,17 @@ export const EntryCreate = () => {
                 onClose={() => setShowReflection(false)}
                 onSave={handleReflectionSave}
                 onSkip={handleReflectionSkip}
+            />
+
+            {/* Unsaved Changes Modal */}
+            <ConfirmationModal
+                isOpen={showUnsavedModal}
+                onConfirm={handleUnsavedConfirm}
+                onCancel={handleUnsavedCancel}
+                title="Unsaved Changes"
+                description="You have unsaved changes. Are you sure you want to leave? Your changes will be lost."
+                confirmText="Leave"
+                cancelText="Stay"
             />
         </div>
     );
