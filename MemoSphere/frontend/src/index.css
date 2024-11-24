@@ -33,10 +33,16 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+
+    --primary-color: #e82361;
+    --accent-color: #752239;
+    --text-entry-color: #F2D0A4;
+    --audio-entry-color: #69DC9E;
+    --image-entry-color: #7D80DA;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 341, 40%, 41%;
     --foreground: 210 40% 98%;
 
     --card: 222.2 84% 4.9%;
@@ -70,6 +76,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }

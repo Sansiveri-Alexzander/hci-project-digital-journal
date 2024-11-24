@@ -52,6 +52,15 @@ module.exports = {
 					DEFAULT: "hsl(var(--card))",
 					foreground: "hsl(var(--card-foreground))",
 				},
+				text_entry: {
+					DEFAULT: "var(--text-entry-color)"
+				},
+				image_entry: {
+					DEFAULT: "var(--image-entry-color)"
+				},
+				audio_entry: {
+					DEFAULT: "var(--audio-entry-color)"
+				}
 			},
 			borderRadius: {
 				lg: "var(--radius)",
