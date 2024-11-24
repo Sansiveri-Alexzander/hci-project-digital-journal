@@ -57,7 +57,7 @@ export class EntryManager {
 
   async getAllEntries(): Promise<Entry[]> {
     const entries = await this.storage.getAllEntries();
-    return entries.map(entry => this.processEntryContent(entry));
+    return Promise.all(entries.map(entry => this.processEntryContent(entry)));
   }
 
   async getEntryById(id: string): Promise<Entry | undefined> {
@@ -73,7 +73,7 @@ export class EntryManager {
 
   async getReflectionChain(entryId: string): Promise<Entry[]> {
     const chain = await this.storage.getReflectionChain(entryId);
-    return chain.map(entry => this.processEntryContent(entry));
+    return Promise.all(chain.map(entry => this.processEntryContent(entry)));
   }
 
   async deleteEntry(id: string): Promise<void> {

@@ -7,13 +7,16 @@ import PromptGenerator from '@/components/entry/PromptGenerator';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ImageIcon, Mic, Type, X } from "lucide-react";
-import { ContentType } from '@/types/Entry';
+import { ContentType, Entry } from '@/types/Entry';
 import ConfirmationModal from '../entry/ConfirmationModal';
+import { Input } from '@/components/ui/input';
+import { EntryManager } from '@/services/EntryManager';
 
 interface PendingEntry {
     type: ContentType;
     content: string | Blob | File | { image: File, caption: string };
     hasContent: boolean;
+    title: string;
 }
 
 export const EntryCreate = () => {
@@ -25,29 +28,40 @@ export const EntryCreate = () => {
     const [showUnsavedModal, setShowUnsavedModal] = useState(false);
     const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
     const [pendingTypeSwitch, setPendingTypeSwitch] = useState<ContentType | null>(null);
+    const entryManager = new EntryManager();
     const [pendingContent, setPendingContent] = useState<PendingEntry>({
         type: type as ContentType,
         content: '',
-        hasContent: false
+        hasContent: false,
+        title: ''
     });
+    
+    //  // Modal handlers
+    //  const handleModalConfirm = () => {
+    //     if (pendingTypeSwitch) {
+    //         setCurrentType(pendingTypeSwitch);
+    //         setPendingContent({
+    //             type: pendingTypeSwitch,
+    //             content: '',
+    //             hasContent: false,
+    //             title: ''
+    //         });
+    //     }
+    //     setShowSwitchModal(false);
+    //     setPendingTypeSwitch(null);
+    // };
 
-     // Modal handlers
-     const handleModalConfirm = () => {
-        if (pendingTypeSwitch) {
-            setCurrentType(pendingTypeSwitch);
-            setPendingContent({
-                type: pendingTypeSwitch,
-                content: '',
-                hasContent: false
-            });
-        }
-        setShowSwitchModal(false);
-        setPendingTypeSwitch(null);
-    };
+    // const handleModalCancel = () => {
+    //     setShowSwitchModal(false);
+    //     setPendingTypeSwitch(null);
+    // };
+    
 
-    const handleModalCancel = () => {
-        setShowSwitchModal(false);
-        setPendingTypeSwitch(null);
+    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPendingContent(prev => ({
+            ...prev,
+            title: e.target.value
+        }));
     };
 
     // Type switching handler
@@ -60,7 +74,8 @@ export const EntryCreate = () => {
                 setPendingContent({
                     type: newType,
                     content: '',
-                    hasContent: false
+                    hasContent: false,
+                    title: pendingContent.title
                 });
             });
             setShowUnsavedModal(true);
@@ -69,7 +84,8 @@ export const EntryCreate = () => {
             setPendingContent({
                 type: newType,
                 content: '',
-                hasContent: false
+                hasContent: false,
+                title: pendingContent.title
             });
         }
     };
@@ -109,7 +125,8 @@ export const EntryCreate = () => {
         setPendingContent({
             type: currentType,
             content,
-            hasContent
+            hasContent,
+            title: pendingContent.title
         });
     };
 
@@ -119,12 +136,26 @@ export const EntryCreate = () => {
         }
     };
 
-    const handleReflectionSave = (feelings: string[], activities: string[]) => {
+    const handleReflectionSave = async (feelings: string[], activities: string[]) => {
+        // Get existing entries to check for "Untitled" entries
+        const existingEntries = await entryManager.getAllEntries();
+        let entryTitle = pendingContent.title.trim();
+        
+        if (!entryTitle) {
+            const untitledCount = existingEntries.filter((entry: Entry) => 
+                entry.title.startsWith('Untitled')).length;
+            
+            entryTitle = untitledCount === 0 
+                ? 'Untitled' 
+                : `Untitled ${untitledCount + 1}`;
+        }
+
         console.log('Saving entry:', {
             type: currentType,
             content: pendingContent.content,
             feelings,
-            activities
+            activities,
+            title: entryTitle
         });
         navigate('/entries');
     };
@@ -164,12 +195,20 @@ export const EntryCreate = () => {
             <Card>
                 <CardContent className="p-6">
                     {/* Header */}
-                    {/* Header - Simplified */}
                     <div className="flex items-center justify-between mb-6">
                         <Button variant="ghost" size="icon" onClick={handleBack}>
                             <X className="h-5 w-5" />
                         </Button>
-                        <h2 className="text-xl font-semibold">{getEntryTitle()}</h2>
+                        <div className="flex-1 mx-4">
+                            <Input
+                                type="text"
+                                placeholder="Entry Title"
+                                value={pendingContent.title}
+                                onChange={handleTitleChange}
+                                className="text-xl font-semibold h-12 px-4 text-foreground placeholder:text-muted-foreground"
+                                style={{ fontSize: '1.25rem' }}
+                            />
+                        </div>
                         <Button
                             onClick={handleSave}
                             disabled={!pendingContent.hasContent}
