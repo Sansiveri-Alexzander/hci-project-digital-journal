@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/MemosphereLogo.svg";
 
 interface SidebarProps {
     isOpen: boolean;
@@ -77,6 +78,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 {/* Header */}
                 <div className="h-16 border-b border-border px-4 flex items-center justify-between">
                     <h2 className="text-lg font-semibold">MemoSphere</h2>
+                    <img src={logo} className="h-full max-h-8 w-auto" alt="MemoSphere Logo" />
                     <Button
                         variant="ghost"
                         size="icon"
