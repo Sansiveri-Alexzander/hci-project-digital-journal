@@ -1,4 +1,4 @@
-import { Entry, ContentType, Feeling, Activity, EntryContent, BinaryContent } from '@/types/Entry';
+import { Entry, ContentType, Feeling, Activity, EntryContent, BinaryContent, ImageContent } from '@/types/Entry';
 import { EntryStorage } from './storage/EntryStorage';
 
 export class EntryManager {
@@ -13,17 +13,30 @@ export class EntryManager {
       return content as string;
     }
 
-    // Check if content is binary (Blob or File)
-    const isBinaryContent = (value: unknown): value is BinaryContent => {
-      return value instanceof Blob || value instanceof File;
-    };
-
-    if (isBinaryContent(content)) {
+    if (contentType === 'image') {
+      const imageContent = content as ImageContent;
       return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(content);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+              // Store both the image data and caption
+              const storedContent = {
+                  imageData: reader.result as string,
+                  caption: imageContent.caption
+              };
+              resolve(JSON.stringify(storedContent));
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(imageContent.image);
+      });
+    }
+
+    // Handle audio content
+    if (contentType === 'audio' && (content instanceof Blob || content instanceof File)) {
+      return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(content);
       });
     }
 
@@ -37,7 +50,8 @@ export class EntryManager {
     feelings: Feeling[],
     activities: Activity[],
     isReflection: boolean = false,
-    linkedEntryId?: string
+    linkedEntryId?: string,
+    prompt?: string
   ): Promise<Entry> {
     // Convert content to storable format based on type
     const storedContent = await this.convertContentForStorage(content, contentType);
@@ -49,7 +63,8 @@ export class EntryManager {
       feelings,
       activities,
       isReflection,
-      linkedEntryId
+      linkedEntryId,
+      prompt
     };
 
     return this.storage.saveEntry(entryData);
@@ -57,7 +72,7 @@ export class EntryManager {
 
   async getAllEntries(): Promise<Entry[]> {
     const entries = await this.storage.getAllEntries();
-    return entries.map(entry => this.processEntryContent(entry));
+    return Promise.all(entries.map(entry => this.processEntryContent(entry)));
   }
 
   async getEntryById(id: string): Promise<Entry | undefined> {
@@ -65,15 +80,26 @@ export class EntryManager {
     return entry ? this.processEntryContent(entry) : undefined;
   }
 
-  private processEntryContent(entry: Entry): Entry {
-    // Process content based on type if needed
-    // For now, just return the entry as is since base64 strings work directly
+  private async processEntryContent(entry: Entry): Promise<Entry> {
+    if (entry.contentType === 'image') {
+        try {
+            // Parse the stored JSON string back into an object
+            const parsedContent = JSON.parse(entry.content as string);
+            return {
+                ...entry,
+                content: parsedContent
+            };
+        } catch (error) {
+            console.error('Error processing image content:', error);
+            return entry;
+        }
+    }
     return entry;
-  }
+}
 
   async getReflectionChain(entryId: string): Promise<Entry[]> {
     const chain = await this.storage.getReflectionChain(entryId);
-    return chain.map(entry => this.processEntryContent(entry));
+    return Promise.all(chain.map(entry => this.processEntryContent(entry)));
   }
 
   async deleteEntry(id: string): Promise<void> {

@@ -14,13 +14,15 @@ export class EntryStorage {
     return EntryStorage.instance;
   }
 
-  getAllEntries(): Entry[] {
-    const entries = localStorage.getItem(STORAGE_KEY);
-    return entries ? JSON.parse(entries) : [];
+  async getAllEntries(): Promise<Entry[]> {
+    return new Promise((resolve) => {
+      const entries = localStorage.getItem(STORAGE_KEY);
+      resolve(entries ? JSON.parse(entries) : []);
+    });
   }
 
-  saveEntry(entry: Omit<Entry, 'id' | 'date'>): Entry {
-    const entries = this.getAllEntries();
+  async saveEntry(entry: Omit<Entry, 'id' | 'date'>): Promise<Entry> {
+    const entries = await this.getAllEntries();
     const newEntry: Entry = {
       ...entry,
       id: crypto.randomUUID(),
@@ -33,12 +35,13 @@ export class EntryStorage {
     return newEntry;
   }
 
-  getEntryById(id: string): Entry | undefined {
-    return this.getAllEntries().find(entry => entry.id === id);
+  async getEntryById(id: string): Promise<Entry | undefined> {
+    const entries = await this.getAllEntries();
+    return entries.find(entry => entry.id === id);
   }
 
-  getReflectionChain(entryId: string): Entry[] {
-    const entries = this.getAllEntries();
+  async getReflectionChain(entryId: string): Promise<Entry[]> {
+    const entries = await this.getAllEntries();
     const chain: Entry[] = [];
     let currentId = entryId;
 
@@ -53,8 +56,8 @@ export class EntryStorage {
     return chain;
   }
 
-  deleteEntry(id: string): void {
-    const entries = this.getAllEntries();
+  async deleteEntry(id: string): Promise<void> {
+    const entries = await this.getAllEntries();
     const updatedEntries = entries.filter(entry => entry.id !== id);
     
     // Also delete any reflections linked to this entry

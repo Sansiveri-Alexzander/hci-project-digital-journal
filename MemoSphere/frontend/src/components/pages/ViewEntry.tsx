@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardContent, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Heart, Activity, PenLine, Mic, Image, Trash2 } from 'lucide-react';
-import { Entry } from '@/types/Entry';
+import { ArrowLeft, Calendar, PenLine, Mic, Image, Trash2, Sparkles } from 'lucide-react';
+import { Activity, Entry, Feeling } from '@/types/Entry';
 import { EntryManager } from '@/services/EntryManager';
-
+import ConfirmationModal from '@/components/entry/ConfirmationModal';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import EntryCard from '../base/EntryCard';
+import { ACTIVITIES, FEELINGS } from '../entry/FeelingActivityModal';
 
 const EntryTypeIcon = {
     'text': <PenLine className="h-5 w-5" />,
@@ -13,27 +17,47 @@ const EntryTypeIcon = {
     'image': <Image className="h-5 w-5" />
 };
 
+function getFeelingIcon(feeling: Feeling) {
+    const feelingIcon = FEELINGS.find(f => f.id === feeling.id)
+    return feelingIcon
+}
+
+function getActivityIcon(activity: Activity) {
+    const activityIcon = ACTIVITIES.find(a => a.id === activity.id)
+    return activityIcon
+}
+
 export const ViewEntry = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [entry, setEntry] = useState<Entry | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [reflectionChain, setReflectionChain] = useState<Entry[]>([]);
+    const [isChainExpanded, setIsChainExpanded] = useState(false);
     
     const entryManager = new EntryManager();
 
-    const handleDelete = async () => {
-        if (!entry || !window.confirm('Are you sure you want to delete this entry? This action cannot be undone.')) {
-            return;
-        }
+    const handleDeleteClick = () => {
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!entry) return;
 
         try {
             await entryManager.deleteEntry(entry.id);
+            setShowDeleteModal(false);
             navigate('/entries', { replace: true });
         } catch (err) {
             console.error('Error deleting entry:', err);
             setError('Failed to delete entry');
         }
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteModal(false);
     };
 
     useEffect(() => {
@@ -50,6 +74,21 @@ export const ViewEntry = () => {
                 }
                 
                 setEntry(loadedEntry);
+
+                // Load reflection chain if this is a reflection
+                if (loadedEntry.isReflection && loadedEntry.linkedEntryId) {
+                    let currentEntryId = loadedEntry.linkedEntryId;
+                    const chain: Entry[] = [];
+                    
+                    while (currentEntryId) {
+                        const chainEntry = await entryManager.getEntryById(currentEntryId);
+                        if (!chainEntry) break;
+                        chain.push(chainEntry);
+                        currentEntryId = chainEntry.linkedEntryId || '';
+                    }
+                    
+                    setReflectionChain(chain);
+                }
             } catch (err) {
                 setError('Failed to load entry');
                 console.error('Error loading entry:', err);
@@ -60,6 +99,91 @@ export const ViewEntry = () => {
 
         loadEntry();
     }, [id]);
+
+    const renderReflectionChain = () => {
+        if (!entry?.isReflection || reflectionChain.length === 0) return null;
+
+        const handleEntryClick = (entryId: string) => {
+            navigate(`/entries/${entryId}`);
+        };
+
+        // If there's only one entry, just show it without the collapsible
+        if (reflectionChain.length === 1) {
+            return (
+                <div className="mb-6">
+                    <div className="flex flex-col gap-2 mb-2">
+                    <h3 className="text-lg font-semibold">Reflecting on</h3>
+                    <p className="text-sm text-muted-foreground">
+                        Entry from {new Date(reflectionChain[0].date).toLocaleDateString()}
+                    </p>
+                </div>
+                    <EntryCard 
+                        entry={reflectionChain[0]} 
+                        mode="summary" 
+                        isReflectionTarget={true}
+                        onClick={() => handleEntryClick(reflectionChain[0].id)}
+                    />
+                </div>
+            );
+        }
+
+        // If there's only one entry, just show it without the collapsible
+        return (
+            <div className="mb-6">
+                <Collapsible open={isChainExpanded} onOpenChange={setIsChainExpanded}>
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex flex-col gap-1">
+                            <h3 className="text-lg font-semibold">Reflection Chain</h3>
+                            <p className="text-sm text-muted-foreground">
+                                {reflectionChain.length} connected entries
+                            </p>
+                        </div>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                                {isChainExpanded ? (
+                                    <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                    <ChevronDown className="h-4 w-4" />
+                                )}
+                            </Button>
+                        </CollapsibleTrigger>
+                    </div>
+    
+                    {/* Always show the first entry being reflected upon */}
+                    <div className="relative">
+                        <EntryCard 
+                            entry={reflectionChain[0]} 
+                            mode="summary" 
+                            isReflectionTarget={true}
+                            onClick={() => handleEntryClick(reflectionChain[0].id)}
+                        />
+                        <span className="text-xs text-primary font-medium mt-1 ml-4 block">
+                            Entry being reflected on
+                        </span>
+                    </div>
+    
+                    <CollapsibleContent>
+                        <div className="space-y-4 mt-4">
+                            {reflectionChain.slice(1).map((chainEntry, index) => (
+                                <div key={chainEntry.id} className="relative">
+                                    <div className="absolute -top-2 left-4 h-4 w-px bg-primary/30" />
+                                    <EntryCard 
+                                        entry={chainEntry} 
+                                        mode="summary"
+                                        isReflectionTarget={false}
+                                        onClick={() => handleEntryClick(chainEntry.id)}
+                                    />
+                                    <span className="text-xs text-muted-foreground mt-1 ml-4 block">
+                                        {index === reflectionChain.length - 2 ? 'First entry in chain' : 'Earlier reflection'}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </CollapsibleContent>
+                </Collapsible>
+            </div>
+        );
+    };
 
     const renderContent = () => {
         if (!entry) return null;
@@ -75,19 +199,70 @@ export const ViewEntry = () => {
                     </audio>
                 );
             case 'image':
+                const imageContent = typeof entry.content === 'string' 
+                    ? JSON.parse(entry.content)
+                    : entry.content;
+                
                 return (
-                    <div className="mt-4">
+                    <div className="mt-4 space-y-2">
                         <img
-                            src={typeof entry.content === 'string' ? entry.content : URL.createObjectURL(entry.content as File)}
+                            src={imageContent.imageData}
                             alt="Entry"
-                            className="rounded-lg max-h-96 w-full object-cover"
+                            className="rounded-lg w-full"
                         />
+                        {imageContent.caption && (
+                            <p className="text-sm text-gray-600 italic">
+                                {imageContent.caption}
+                            </p>
+                        )}
                     </div>
                 );
             default:
                 return null;
         }
     };
+
+    const renderFeelingActivityIcons = () => {
+        if (!entry) return null;
+
+        return (
+            <div className="p-2 left-4 space-y-2">
+                {entry.feelings.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-2">
+                        {entry.feelings.map(feeling => {
+                            const feelingIcon = getFeelingIcon(feeling);
+                            return feelingIcon ? (
+                                <span
+                                    key={feeling.id}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full text-xs font-medium"
+                                >
+                                    {feelingIcon.icon} 
+                                    {feelingIcon.label}
+                                </span>
+                            ) : null;
+                        })}
+                    </div>
+                )}
+
+                {entry.activities.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {entry.activities.map(activity => {
+                            const activityIcon = getActivityIcon(activity);
+                            return activityIcon ? (
+                                <span
+                                    key={activity.id}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-medium"
+                                >
+                                    {activityIcon.icon} 
+                                    {activityIcon.label}
+                                </span>
+                            ) : null;
+                        })}
+                    </div>
+                )}
+            </div>
+        );
+    }
 
     if (isLoading) {
         return (
@@ -126,12 +301,23 @@ export const ViewEntry = () => {
 
                 <button
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    onClick={handleDelete}
+                    onClick={handleDeleteClick}
                 >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete
                 </button>
             </div>
+
+            {/* Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={showDeleteModal}
+                onConfirm={handleDeleteConfirm}
+                onCancel={handleDeleteCancel}
+                title="Delete Entry"
+                description="Are you sure you want to delete this entry? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+            />
 
             {/* Entry Content */}
             <Card>
@@ -143,12 +329,18 @@ export const ViewEntry = () => {
                             {new Date(entry.date).toLocaleDateString()}
                         </div>
                     </div>
-                    
-                    {/* Entry Type Badge */}
-                    <div className="flex items-center gap-1.5 text-sm font-medium text-primary">
-                        {EntryTypeIcon[entry.contentType]}
-                        <span className="capitalize">{entry.contentType} Entry</span>
-                    </div>
+
+                    {/* Show reflection chain if this is a reflection */}
+                    {renderReflectionChain()}
+
+                    {/* Add Prompt Display */}
+                    {entry?.prompt && (
+                        <div className={`mt-4 p-4 ${entry.isReflection ? 'bg-primary/5' : 'bg-muted/50'} rounded-lg border border-border/50`}>
+                            <p className={`text-base ${entry.isReflection ? 'text-primary/80' : 'text-muted-foreground'} pl-6 border-l-2 border-primary/20 italic`}>
+                                "{entry.prompt}"
+                            </p>
+                        </div>
+                    )}
                 </CardHeader>
 
                 <CardContent className="space-y-6">
@@ -157,44 +349,14 @@ export const ViewEntry = () => {
 
                     {/* Feelings and Activities */}
                     <div className="space-y-4">
-                        {entry.feelings.length > 0 && (
-                            <div className="flex items-start gap-2">
-                                <Heart className="h-4 w-4 text-rose-500 mt-1" />
-                                <div className="flex flex-wrap gap-1.5">
-                                    {entry.feelings.map((feeling) => (
-                                        <span
-                                            key={feeling.id}
-                                            className="px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full text-sm font-medium"
-                                        >
-                                            {feeling.name}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {entry.activities.length > 0 && (
-                            <div className="flex items-start gap-2">
-                                <Activity className="h-4 w-4 text-blue-500 mt-1" />
-                                <div className="flex flex-wrap gap-1.5">
-                                    {entry.activities.map((activity) => (
-                                        <span
-                                            key={activity.id}
-                                            className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-sm font-medium"
-                                        >
-                                            {activity.name}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                        {renderFeelingActivityIcons()}
                     </div>
                 </CardContent>
 
                 <CardFooter className="flex justify-end space-x-2">
                     <Button
                         type="button"
-                        onClick={() => navigate(`/reflect?entryId=${entry.id}`)}
+                        onClick={() => navigate(`/create/text?reflectOn=${entry.id}`)}
                     >
                         Reflect!
                     </Button>

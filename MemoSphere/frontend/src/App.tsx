@@ -19,37 +19,6 @@ export interface Entry {
     activities?: string[];
 }
 
-// Mock initial entries
-const INITIAL_ENTRIES: Entry[] = [
-    {
-        id: '1',
-        type: 'text',
-        content: 'This is a sample text entry.',
-        date: new Date().toISOString(),
-        title: 'First Entry',
-        feelings: ['Happy', 'Productive'],
-        activities: ['Work', 'Exercise']
-    },
-    {
-        id: '2',
-        type: 'audio',
-        content: '/sample-audio.webm',
-        date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-        title: 'Voice Note',
-        feelings: ['Reflective'],
-        activities: ['Planning']
-    },
-    {
-        id: '3',
-        type: 'image',
-        content: '/api/placeholder/400/300',
-        date: new Date(Date.now() - 172800000).toISOString(), // Day before yesterday
-        title: 'Photo Memory',
-        feelings: ['Grateful'],
-        activities: ['Travel']
-    }
-];
-
 import { createContext, useContext, useState } from 'react';
 
 // Create context for entries
