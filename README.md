@@ -4,7 +4,7 @@
 
 # MemoSphere
 
-IS4300 - Human Computer Interaction
+MemoSphere is a journaling app created for IS4300 Human-Computer Interaction. Our app features multi-model inputs for entries (text, audio, image) and AI prompt generation based on previous entries to give users a more accessible and personal journaling experience!
 
 ## Team Members
 
