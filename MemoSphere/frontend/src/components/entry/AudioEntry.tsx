@@ -4,16 +4,21 @@ import { Mic, Square } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AssemblyAI } from 'assemblyai';
+//import "dotenv/config";
+
+
 
 interface AudioEntryProps {
     onSave: (audioBlob: Blob | null) => void;
 }
 
 const client = new AssemblyAI({
-    apiKey: 'e00fcb246ffa4a358e10f30a2c7b392c',
+    apiKey: import.meta.env.VITE_API_KEY,
+    
   });
 
 const AudioEntry: React.FC<AudioEntryProps> = ({ onSave }) => {
+    
     const [isRecording, setIsRecording] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
@@ -26,6 +31,7 @@ const AudioEntry: React.FC<AudioEntryProps> = ({ onSave }) => {
 
     const startRecording = async () => {
         try {
+            //console.log(import.meta.env.VITE_API_KEY)
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorderRef.current = new MediaRecorder(stream);
 
@@ -99,6 +105,7 @@ const AudioEntry: React.FC<AudioEntryProps> = ({ onSave }) => {
 
     return (
         <div className="flex flex-col items-center gap-4">
+            
             <Button
                 size="lg"
                 variant={isRecording ? "destructive" : "default"}
@@ -114,6 +121,7 @@ const AudioEntry: React.FC<AudioEntryProps> = ({ onSave }) => {
 
             <p className="text-gray-600">
                 {isRecording ? 'Recording...' : isTranscribing ? 'Transcribing...' : 'Press to record'}
+                
             </p>
 
             {audioUrl && (

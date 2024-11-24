@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { TextEntry, AudioEntry, ImageEntry } from '@/components/entry';
 import FeelingActivityModal from '@/components/entry/FeelingActivityModal';
 import PromptGenerator from '@/components/entry/PromptGenerator';
+import DateSelector from '@/components/entry/DateSelector';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -108,6 +109,9 @@ export const EntryCreate = () => {
                             Save
                         </Button>
                     </div>
+
+                    {/* Date Selector */}
+                    <DateSelector />
 
                     {/* Prompt Generator */}
                     <PromptGenerator />
