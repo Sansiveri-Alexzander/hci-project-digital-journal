@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/MemosphereLogo.svg";
+import '../../animations.css';
 
 interface SidebarProps {
     isOpen: boolean;
@@ -36,19 +37,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             icon: <PenLine className="h-4 w-4" />,
             label: 'Text',
             path: '/create/text',
-            description: 'Write your thoughts'
+            description: 'Write your thoughts',
+            className: 'text-entry'
         },
         {
             icon: <Mic className="h-4 w-4" />,
             label: 'Audio',
             path: '/create/audio',
-            description: 'Record your voice'
+            description: 'Record your voice',
+            className: 'audio-entry'
         },
         {
             icon: <Camera className="h-4 w-4" />,
             label: 'Image',
             path: '/create/image',
-            description: 'Capture a moment'
+            description: 'Capture a moment',
+            className: 'image-entry'
         },
     ];
 
@@ -115,7 +119,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                 key={button.path}
                                 variant="outline"
                                 size="sm"
-                                className="flex flex-col items-center py-4 gap-2 h-auto"
+                                className={`animated-button ${button.className} flex flex-col items-center py-4 gap-2 h-auto`}
                                 onClick={() => handleNavigation(button.path)}
                                 title={button.description}
                             >
