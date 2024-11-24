@@ -2,7 +2,13 @@
 export type ContentType = 'text' | 'audio' | 'image';
 
 // Define specific content types
-export type EntryContent = string | Blob | File;
+export type EntryContent = string | BinaryContent | ImageContent;
+
+export type BinaryContent = Blob | File;
+export type ImageContent = {
+  image: File;
+  caption: string;
+};
 
 // Base interface for all entries
 export interface BaseEntry {

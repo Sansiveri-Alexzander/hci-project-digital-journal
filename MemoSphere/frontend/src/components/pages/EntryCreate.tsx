@@ -136,8 +136,7 @@ export const EntryCreate = () => {
         }
     };
 
-    const handleReflectionSave = async (feelings: string[], activities: string[]) => {
-        // Get existing entries to check for "Untitled" entries
+    const generateTitle = async (): Promise<string> => {
         const existingEntries = await entryManager.getAllEntries();
         let entryTitle = pendingContent.title.trim();
         
@@ -149,23 +148,44 @@ export const EntryCreate = () => {
                 ? 'Untitled' 
                 : `Untitled ${untitledCount + 1}`;
         }
+        return entryTitle;
+    };
 
-        console.log('Saving entry:', {
-            type: currentType,
-            content: pendingContent.content,
-            feelings,
-            activities,
-            title: entryTitle
-        });
+    const handleReflectionSave = async (feelings: string[], activities: string[]) => {
+        // Get existing entries to check for "Untitled" entries
+        
+        const entryTitle = await generateTitle();
+
+        await entryManager.createEntry(
+            currentType,
+            pendingContent.content,
+            entryTitle,
+            feelings.map(feeling => ({ id: feeling, name: feeling, intensity: 1 })),
+            activities.map(activity => ({ id: activity, name: activity })),
+            false  // isReflection
+        );
         navigate('/entries');
     };
 
-    const handleReflectionSkip = () => {
-        console.log('Saving entry without reflections:', {
-            type: currentType,
-            content: pendingContent.content
-        });
-        navigate('/entries');
+    const handleReflectionSkip = async () => {
+        try {
+            const entryTitle = await generateTitle();
+
+            // Save entry without reflections
+            await entryManager.createEntry(
+                currentType,
+                pendingContent.content,
+                entryTitle,
+                [],  // empty feelings array
+                [],  // empty activities array
+                false  // isReflection
+            );
+
+            navigate('/entries');
+        } catch (error) {
+            console.error('Error saving entry without reflections:', error);
+            // You might want to show an error message to the user here
+        }
     };
 
     const getEntryTitle = () => {

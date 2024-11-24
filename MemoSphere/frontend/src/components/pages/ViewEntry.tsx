@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, Heart, Activity, PenLine, Mic, Image, Trash2 } from 'lucide-react';
 import { Entry } from '@/types/Entry';
 import { EntryManager } from '@/services/EntryManager';
+import ConfirmationModal from '@/components/entry/ConfirmationModal';
+
 
 
 const EntryTypeIcon = {
@@ -19,21 +21,29 @@ export const ViewEntry = () => {
     const [entry, setEntry] = useState<Entry | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     
     const entryManager = new EntryManager();
 
-    const handleDelete = async () => {
-        if (!entry || !window.confirm('Are you sure you want to delete this entry? This action cannot be undone.')) {
-            return;
-        }
+    const handleDeleteClick = () => {
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!entry) return;
 
         try {
             await entryManager.deleteEntry(entry.id);
+            setShowDeleteModal(false);
             navigate('/entries', { replace: true });
         } catch (err) {
             console.error('Error deleting entry:', err);
             setError('Failed to delete entry');
         }
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteModal(false);
     };
 
     useEffect(() => {
@@ -126,12 +136,23 @@ export const ViewEntry = () => {
 
                 <button
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    onClick={handleDelete}
+                    onClick={handleDeleteClick}
                 >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete
                 </button>
             </div>
+
+            {/* Add Delete Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={showDeleteModal}
+                onConfirm={handleDeleteConfirm}
+                onCancel={handleDeleteCancel}
+                title="Delete Entry"
+                description="Are you sure you want to delete this entry? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+            />
 
             {/* Entry Content */}
             <Card>
