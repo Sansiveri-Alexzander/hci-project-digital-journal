@@ -33,7 +33,7 @@ export const Home = () => {
                 >
                     <PenLine className="h-10 w-10" />
                     <div className="flex flex-col items-center">
-                        <span className="text-lg font-semibold">Text</span>
+                        <span className="text-lg font-semibold">Text Entry</span>
                         <span className="text-sm">Write down your thoughts</span>
                     </div>
                 </Button>
