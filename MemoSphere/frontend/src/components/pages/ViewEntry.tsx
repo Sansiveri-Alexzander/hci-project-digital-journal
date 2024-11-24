@@ -2,21 +2,30 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardContent, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Heart, Activity, PenLine, Mic, Image, Trash2, Sparkles } from 'lucide-react';
-import { Entry } from '@/types/Entry';
+import { ArrowLeft, Calendar, PenLine, Mic, Image, Trash2, Sparkles } from 'lucide-react';
+import { Activity, Entry, Feeling } from '@/types/Entry';
 import { EntryManager } from '@/services/EntryManager';
 import ConfirmationModal from '@/components/entry/ConfirmationModal';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import EntryCard from '../base/EntryCard';
-
-
+import { ACTIVITIES, FEELINGS } from '../entry/FeelingActivityModal';
 
 const EntryTypeIcon = {
     'text': <PenLine className="h-5 w-5" />,
     'audio': <Mic className="h-5 w-5" />,
     'image': <Image className="h-5 w-5" />
 };
+
+function getFeelingIcon(feeling: Feeling) {
+    const feelingIcon = FEELINGS.find(f => f.id === feeling.id)
+    return feelingIcon
+}
+
+function getActivityIcon(activity: Activity) {
+    const activityIcon = ACTIVITIES.find(a => a.id === activity.id)
+    return activityIcon
+}
 
 export const ViewEntry = () => {
     const { id } = useParams<{ id: string }>();
@@ -179,39 +188,81 @@ export const ViewEntry = () => {
     const renderContent = () => {
         if (!entry) return null;
 
-    switch (entry.contentType) {
-        case 'text':
-            return <p className="text-gray-700 whitespace-pre-wrap">{entry.content as string}</p>;
-        case 'audio':
-            return (
-                <audio controls className="w-full mt-4">
-                    <source src={entry.content as string} type="audio/webm" />
-                    Your browser does not support the audio element.
-                </audio>
-            );
-        case 'image':
-            const imageContent = typeof entry.content === 'string' 
-                ? JSON.parse(entry.content)
-                : entry.content;
-            
-            return (
-                <div className="mt-4 space-y-2">
-                    <img
-                        src={imageContent.imageData}
-                        alt="Entry"
-                        className="rounded-lg max-h-96 w-full object-cover"
-                    />
-                    {imageContent.caption && (
-                        <p className="text-sm text-gray-600 italic">
-                            {imageContent.caption}
-                        </p>
-                    )}
-                </div>
-            );
-        default:
-            return null;
+        switch (entry.contentType) {
+            case 'text':
+                return <p className="text-gray-700 whitespace-pre-wrap">{entry.content as string}</p>;
+            case 'audio':
+                return (
+                    <audio controls className="w-full mt-4">
+                        <source src={entry.content as string} type="audio/webm" />
+                        Your browser does not support the audio element.
+                    </audio>
+                );
+            case 'image':
+                const imageContent = typeof entry.content === 'string' 
+                    ? JSON.parse(entry.content)
+                    : entry.content;
+                
+                return (
+                    <div className="mt-4 space-y-2">
+                        <img
+                            src={imageContent.imageData}
+                            alt="Entry"
+                            className="rounded-lg w-full"
+                        />
+                        {imageContent.caption && (
+                            <p className="text-sm text-gray-600 italic">
+                                {imageContent.caption}
+                            </p>
+                        )}
+                    </div>
+                );
+            default:
+                return null;
         }
     };
+
+    const renderFeelingActivityIcons = () => {
+        if (!entry) return null;
+
+        return (
+            <div className="p-2 left-4 space-y-2">
+                {entry.feelings.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-2">
+                        {entry.feelings.map(feeling => {
+                            const feelingIcon = getFeelingIcon(feeling);
+                            return feelingIcon ? (
+                                <span
+                                    key={feeling.id}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full text-xs font-medium"
+                                >
+                                    {feelingIcon.icon} 
+                                    {feelingIcon.label}
+                                </span>
+                            ) : null;
+                        })}
+                    </div>
+                )}
+
+                {entry.activities.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {entry.activities.map(activity => {
+                            const activityIcon = getActivityIcon(activity);
+                            return activityIcon ? (
+                                <span
+                                    key={activity.id}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-medium"
+                                >
+                                    {activityIcon.icon} 
+                                    {activityIcon.label}
+                                </span>
+                            ) : null;
+                        })}
+                    </div>
+                )}
+            </div>
+        );
+    }
 
     if (isLoading) {
         return (
@@ -298,37 +349,7 @@ export const ViewEntry = () => {
 
                     {/* Feelings and Activities */}
                     <div className="space-y-4">
-                        {entry.feelings.length > 0 && (
-                            <div className="flex items-start gap-2">
-                                <Heart className="h-4 w-4 text-rose-500 mt-1" />
-                                <div className="flex flex-wrap gap-1.5">
-                                    {entry.feelings.map((feeling) => (
-                                        <span
-                                            key={feeling.id}
-                                            className="px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full text-sm font-medium"
-                                        >
-                                            {feeling.name}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {entry.activities.length > 0 && (
-                            <div className="flex items-start gap-2">
-                                <Activity className="h-4 w-4 text-blue-500 mt-1" />
-                                <div className="flex flex-wrap gap-1.5">
-                                    {entry.activities.map((activity) => (
-                                        <span
-                                            key={activity.id}
-                                            className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-sm font-medium"
-                                        >
-                                            {activity.name}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                        {renderFeelingActivityIcons()}
                     </div>
                 </CardContent>
 

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Entry } from '@/types/Entry';
-import { Calendar, PenLine, Mic, Image, Heart, Activity } from 'lucide-react';
+import { Activity, Entry, Feeling } from '@/types/Entry';
+import { Calendar, PenLine, Mic, Image } from 'lucide-react';
+import { FEELINGS, ACTIVITIES } from '@/components/entry/FeelingActivityModal';
 
 interface EntryCardProps {
     entry: Entry;
@@ -15,6 +16,16 @@ const EntryTypeIcon = {
     'audio': <Mic className="h-4 w-4" />,
     'image': <Image className="h-4 w-4" />
 };
+
+function getFeelingIcon(feeling: Feeling) {
+    const feelingIcon = FEELINGS.find(f => f.id === feeling.id)
+    return feelingIcon
+}
+
+function getActivityIcon(activity: Activity) {
+    const activityIcon = ACTIVITIES.find(a => a.id === activity.id)
+    return activityIcon
+}
 
 const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick, mode = 'full', isReflectionTarget = false}) => {
     const { title, date, content, contentType, feelings, activities } = entry;
@@ -41,7 +52,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick, mode = 'full', is
             case 'text':
                 if (mode === 'summary') {
                     return (
-                        <div className="h-24 overflow-hidden">
+                        <div className="h-32 overflow-hidden">
                             <p className="text-gray-600 text-sm line-clamp-3">
                                 {(content as string).substring(0, 150)}
                                 {(content as string).length > 150 && '...'}
@@ -50,7 +61,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick, mode = 'full', is
                     );
                 }
                 return (
-                    <div className="h-32 overflow-hidden">
+                    <div className="h-48 overflow-hidden">
                         <p className="text-gray-600 text-sm line-clamp-5">
                             {content as string}
                         </p>
@@ -58,11 +69,11 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick, mode = 'full', is
                 );
             case 'image':
                 return imageUrl ? (
-                    <div className="aspect-[3/2] w-full rounded-md overflow-hidden bg-gray-100">
+                    <div className="aspect-[3/2] w-full h-48 rounded-md overflow-hidden bg-gray-100">
                         <img 
                             src={imageUrl}
                             alt="Entry preview" 
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+                            className="w-full h-auto object-cover hover:scale-105 transition-transform duration-200"
                         />
                     </div>
                 ) : (
@@ -72,7 +83,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick, mode = 'full', is
                 );
             case 'audio':
                 return (
-                    <div className="h-32 bg-gray-50 rounded-md p-4">
+                    <div className="h-48 bg-gray-50 rounded-md p-4">
                         <div className="flex items-center justify-between mb-4">
                             <Mic className="h-6 w-6 text-primary" />
                             <div className="flex-1 mx-4">
@@ -93,6 +104,46 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick, mode = 'full', is
                 return null;
         }
     };
+
+    const renderFeelingActivityIcons = () => {
+        return (
+            <div className="p-2 left-4 space-y-2">
+                {feelings.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-2">
+                        {feelings.map(feeling => {
+                            const feelingIcon = getFeelingIcon(feeling);
+                            return feelingIcon ? (
+                                <span
+                                    key={feeling.id}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full text-xs font-medium"
+                                >
+                                    {feelingIcon.icon} 
+                                    {feelingIcon.label}
+                                </span>
+                            ) : null;
+                        })}
+                    </div>
+                )}
+
+                {activities.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {activities.map(activity => {
+                            const activityIcon = getActivityIcon(activity);
+                            return activityIcon ? (
+                                <span
+                                    key={activity.id}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-medium"
+                                >
+                                    {activityIcon.icon} 
+                                    {activityIcon.label}
+                                </span>
+                            ) : null;
+                        })}
+                    </div>
+                )}
+            </div>
+        );
+    }
 
     return (
         <Card
@@ -131,31 +182,9 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onClick, mode = 'full', is
                 </CardTitle>
             </CardHeader>
 
-            <CardContent className="p-4 pt-2 space-y-4">
+            <CardContent className="p-4 pb-2 pt-2 space-y-4 relative">
                 {renderContentPreview()}
-
-                {(feelings.length > 0 || activities.length > 0) && (
-                    <div className="flex flex-wrap gap-1.5 pt-2">
-                        {feelings.map(feeling => (
-                            <span
-                                key={feeling.id}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full text-xs font-medium"
-                            >
-                                <Heart className="h-3 w-3" />
-                                {feeling.name}
-                            </span>
-                        ))}
-                        {activities.map(activity => (
-                            <span
-                                key={activity.id}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-medium"
-                            >
-                                <Activity className="h-3 w-3" />
-                                {activity.name}
-                            </span>
-                        ))}
-                    </div>
-                )}
+                {renderFeelingActivityIcons()}
             </CardContent>
         </Card>
     );

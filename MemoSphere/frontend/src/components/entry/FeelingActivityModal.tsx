@@ -29,7 +29,7 @@ interface FeelingActivityModalProps {
     onSkip: () => void;
 }
 
-const FEELINGS = [
+export const FEELINGS = [
     { id: 'happy', label: 'Happy', icon: <Sun className="h-6 w-6" />},
     { id: 'sad', label: 'Sad', icon: <Cloud className="h-6 w-6" />},
     { id: 'grateful', label: 'Grateful', icon: <Heart className="h-6 w-6" />},
@@ -40,7 +40,7 @@ const FEELINGS = [
     { id: 'anxious', label: 'Anxious', icon: <Wind className="h-6 w-6" />},
 ];
 
-const ACTIVITIES = [
+export const ACTIVITIES = [
     { id: 'work', label: 'Work', icon: <Briefcase className="h-6 w-6" /> },
     { id: 'exercise', label: 'Exercise', icon: <Dumbbell className="h-6 w-6" /> },
     { id: 'study', label: 'Study', icon: <BookOpen className="h-6 w-6" /> },
