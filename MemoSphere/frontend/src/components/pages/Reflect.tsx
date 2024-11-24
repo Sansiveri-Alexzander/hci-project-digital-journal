@@ -1,3 +1,4 @@
+// src/pages/AllEntries.tsx
 import React, { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { REFLECTION_PROMPTS } from '../entry/PromptGenerator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, X, Sparkles, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
 
 export const Reflect = () => {
     const [currentEntry, setCurrentEntry] = useState<Entry | null>(null);
@@ -150,6 +152,7 @@ export const Reflect = () => {
                     </motion.div>
                 </CardFooter>
             </Card>
+            <h1 className="text-2xl font-bold mb-6">Reflect</h1>
         </div>
     );
 };

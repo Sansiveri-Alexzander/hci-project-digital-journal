@@ -3,6 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, Search, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/MemosphereLogo.svg";
 
 interface HeaderProps {
     onMenuToggle: () => void;
@@ -16,7 +17,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
             <div className="container mx-auto h-full px-4">
                 <div className="flex items-center justify-between h-full">
                     {/* Left side */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 h-16 max-h-16 overflow-hidden">
                         <Button
                             variant="ghost"
                             size="icon"
@@ -31,6 +32,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
                         >
                             MemoSphere
                         </Button>
+                        <img src={logo} className="h-full max-h-8 w-auto" alt="MemoSphere Logo" />
                     </div>
 
                     {/* Right side */}

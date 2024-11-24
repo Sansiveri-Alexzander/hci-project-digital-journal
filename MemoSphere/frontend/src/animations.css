@@ -1,0 +1,31 @@
+.animated-button {
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    background-color: transparent;
+    color: #000;
+}
+
+.animated-button.text-entry:hover {
+    background-color: var(--text-entry-color);
+    border-color: #000;
+}
+
+.animated-button.audio-entry:hover {
+    background-color: var(--audio-entry-color);
+    border-color: #000;
+}
+
+.animated-button.image-entry:hover {
+    background-color: var(--image-entry-color);
+    border-color: #000;
+}
+
+.animated-button-primary {
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    background-color: transparent;
+    color: #000;
+}
+
+.animated-button-primary:hover {
+    background-color: var(--primary-color);
+    border-color: #000;
+}
