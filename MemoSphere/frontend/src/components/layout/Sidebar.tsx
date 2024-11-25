@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/MemosphereLogo.svg";
-import '../../animations.css';
+import '@/styles/animations.css';
 
 interface SidebarProps {
     isOpen: boolean;
