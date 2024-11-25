@@ -1,7 +1,7 @@
 // src/components/layout/Header.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Search, Plus } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/MemosphereLogo.svg";
 
@@ -33,24 +33,6 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
                             MemoSphere
                         </Button>
                         <img src={logo} className="h-full max-h-8 w-auto" alt="MemoSphere Logo" />
-                    </div>
-
-                    {/* Right side */}
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => navigate('/search')}
-                        >
-                            <Search className="h-5 w-5" />
-                        </Button>
-                        <Button
-                            variant="default"
-                            size="icon"
-                            onClick={() => navigate('/create/text')}
-                        >
-                            <Plus className="h-5 w-5" />
-                        </Button>
                     </div>
                 </div>
             </div>

@@ -5,7 +5,6 @@ import {
     Home,
     Book,
     RefreshCw,
-    Search,
     X,
     PenLine,
     Mic,
@@ -29,7 +28,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         { icon: <Home className="h-5 w-5" />, label: 'Home', path: '/' },
         { icon: <Book className="h-5 w-5" />, label: 'All Entries', path: '/entries' },
         { icon: <RefreshCw className="h-5 w-5" />, label: 'Reflect', path: '/reflect' },
-        { icon: <Search className="h-5 w-5" />, label: 'Search', path: '/search' },
     ];
 
     const quickEntryButtons = [
@@ -128,20 +126,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                             </Button>
                         ))}
                     </div>
-                </div>
-
-                {/* User Section */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
-                    <Button
-                        variant="outline"
-                        className="w-full justify-center"
-                        onClick={() => {
-                            // Handle sign in/out
-                            console.log('Toggle auth');
-                        }}
-                    >
-                        Sign In
-                    </Button>
                 </div>
             </div>
         </>
