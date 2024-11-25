@@ -1,15 +1,41 @@
+// src/components/pages/AllEntries.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EntryCard from '@/components/base/EntryCard';
 import { Entry } from '@/types/Entry';
 import { EntryManager } from '@/services/EntryManager';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, PenLine, Mic, Camera } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const AllEntries = () => {
     const [entries, setEntries] = useState<Entry[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
     const entryManager = new EntryManager();
+
+    const entryTypes = [
+        {
+            type: 'text',
+            icon: <PenLine className="h-10 w-10" />,
+            title: 'Text Entry',
+            description: 'Write down your thoughts',
+            className: 'text-entry'
+        },
+        {
+            type: 'audio',
+            icon: <Mic className="h-10 w-10" />,
+            title: 'Audio Entry',
+            description: 'Record your voice',
+            className: 'audio-entry'
+        },
+        {
+            type: 'image',
+            icon: <Camera className="h-10 w-10" />,
+            title: 'Image Entry',
+            description: 'Capture a moment',
+            className: 'image-entry'
+        }
+    ];
 
     useEffect(() => {
         const loadEntries = async () => {
@@ -38,19 +64,36 @@ export const AllEntries = () => {
                 </button>
                 <h1 className="text-center mx-auto text-2xl font-bold mb-6">All Entries</h1>
             </div>
-            
+
             {isLoading ? (
                 <div className="text-center py-4">Loading entries...</div>
             ) : entries.length === 0 ? (
-                <div className="text-center py-8">
-                    <p className="mb-4">No entries saved yet. Create your first entry to get started!</p>
-                    <button 
-                        onClick={() => navigate('/create/text')} 
-                        className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md"
-                    >
-                        Create New Entry
-                    </button>
-                </div> 
+                <Card className="max-w-2xl mx-auto">
+                    <CardHeader>
+                        <CardTitle className="text-center">Create Your First Entry</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                        <p className="text-center text-muted-foreground mb-8">
+                            Choose a type of entry to get started with your journaling journey
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {entryTypes.map((entry) => (
+                                <Button
+                                    key={entry.type}
+                                    variant="outline"
+                                    className={`animated-button ${entry.className} h-40 flex flex-col items-center justify-center gap-4 p-6 border-2`}
+                                    onClick={() => navigate(`/create/${entry.type}`)}
+                                >
+                                    {entry.icon}
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-lg font-semibold">{entry.title}</span>
+                                        <span className="text-sm text-muted-foreground">{entry.description}</span>
+                                    </div>
+                                </Button>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {entries.map((entry) => (
