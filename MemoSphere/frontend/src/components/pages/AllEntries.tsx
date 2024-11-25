@@ -1,7 +1,6 @@
 // src/components/pages/AllEntries.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import EntryCard from '@/components/base/EntryCard';
 import { Entry } from '@/types/Entry';
 import { EntryManager } from '@/services/EntryManager';

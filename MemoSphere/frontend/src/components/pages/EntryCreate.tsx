@@ -249,7 +249,7 @@ export const EntryCreate = () => {
                     <div className="flex items-center justify-between mb-2">
                         <h3 className="text-lg font-semibold">Reflecting on</h3>
                         <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="sm">
+                            <Button>
                                 {isChainExpanded ? (
                                     <ChevronUp className="h-4 w-4" />
                                 ) : (
@@ -304,7 +304,7 @@ export const EntryCreate = () => {
                 <CardContent className="p-6">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-6">
-                        <Button variant="ghost" size="icon" onClick={handleBack}>
+                        <Button onClick={handleBack}>
                             <X className="h-5 w-5" />
                         </Button>
                         <div className="flex-1 mx-4">

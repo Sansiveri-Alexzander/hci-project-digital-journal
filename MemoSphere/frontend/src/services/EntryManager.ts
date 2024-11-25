@@ -1,4 +1,4 @@
-import { Entry, ContentType, Feeling, Activity, EntryContent, BinaryContent, ImageContent } from '@/types/Entry';
+import { Entry, ContentType, Feeling, Activity, EntryContent, ImageContent } from '@/types/Entry';
 import { EntryStorage } from './storage/EntryStorage';
 
 export class EntryManager {

@@ -12,7 +12,7 @@ interface SearchProps {
 
 const Search: React.FC<SearchProps> = ({ isOpen, onClose }) => {
     const [searchQuery, setSearchQuery] = useState('');
-    const [results, setResults] = useState<any[]>([]);
+    const [results] = useState<any[]>([]);
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
@@ -33,11 +33,7 @@ const Search: React.FC<SearchProps> = ({ isOpen, onClose }) => {
                             className="flex-1 border-none focus:ring-0"
                             autoFocus
                         />
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={onClose}
-                        >
+                        <Button onClick={onClose}>
                             <X className="h-5 w-5" />
                         </Button>
                     </div>

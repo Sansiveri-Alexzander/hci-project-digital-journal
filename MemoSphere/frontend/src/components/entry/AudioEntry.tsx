@@ -74,7 +74,7 @@ const AudioEntry: React.FC<AudioEntryProps> = ({ onSave }) => {
             audio: new Uint8Array(arrayBuffer),
         });
         
-        return response.text;
+        return response.text || '';
     };
 
     const handleRecordButton = () => {
@@ -100,8 +100,6 @@ const AudioEntry: React.FC<AudioEntryProps> = ({ onSave }) => {
     return (
         <div className="flex flex-col items-center gap-4">
             <Button
-                size="lg"
-                variant={isRecording ? "destructive" : "default"}
                 className="rounded-full h-20 w-20 flex items-center justify-center"
                 onClick={handleRecordButton}
             >
@@ -140,13 +138,11 @@ const AudioEntry: React.FC<AudioEntryProps> = ({ onSave }) => {
                     </p>
                     <DialogFooter className="flex gap-2">
                         <Button
-                            variant="outline"
                             onClick={() => setShowRestartDialog(false)}
                         >
                             Cancel
                         </Button>
                         <Button
-                            variant="destructive"
                             onClick={handleRestart}
                         >
                             Start Over

@@ -1,5 +1,5 @@
 // src/pages/AllEntries.tsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Entry } from '@/types/Entry';
@@ -155,7 +155,6 @@ export const Reflect = () => {
                                         <Button 
                                             onClick={handleRestartCycle}
                                             className="gap-2"
-                                            variant="default"
                                         >
                                             <RotateCcw className="h-4 w-4" />
                                             Start New Cycle
@@ -168,7 +167,6 @@ export const Reflect = () => {
                                         <Button
                                             onClick={() => navigate('/create/text')}
                                             className="gap-2"
-                                            variant="outline"
                                         >
                                             <PenLine className="h-4 w-4" />
                                             Create New Entry
@@ -250,8 +248,6 @@ export const Reflect = () => {
                             className="flex flex-col items-center gap-2"
                         >
                             <Button
-                                variant="outline"
-                                size="lg"
                                 onClick={handleBack}
                                 disabled={currentIndex === 0}
                                 className={`rounded-full h-16 w-16 p-0 border-2 ${
@@ -273,7 +269,6 @@ export const Reflect = () => {
                             className="flex flex-col items-center gap-2"
                         >
                             <Button
-                                size="lg"
                                 onClick={handleReflect}
                                 className="rounded-full h-16 w-16 p-0 bg-primary hover:bg-primary/90"
                                 title="Reflect on this entry"
@@ -292,8 +287,6 @@ export const Reflect = () => {
                             className="flex flex-col items-center gap-2"
                         >
                             <Button
-                                variant="outline"
-                                size="lg"
                                 onClick={handleNext}
                                 className="rounded-full h-16 w-16 p-0 border-2"
                                 title="Next entry"
