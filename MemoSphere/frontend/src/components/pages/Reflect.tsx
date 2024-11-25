@@ -204,6 +204,14 @@ export const Reflect = () => {
 
     return (
         <div className="container mx-auto px-4 py-6">
+            <Button
+                onClick={() => navigate(-1)}
+                variant="outline"
+                className="gap-2"
+            >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+            </Button>
             <Card className="max-w-2xl mx-auto">
                 <CardHeader>
                     <CardTitle className="text-center">Find an Entry to Reflect On</CardTitle>
