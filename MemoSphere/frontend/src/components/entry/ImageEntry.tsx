@@ -1,6 +1,6 @@
 // src/components/entry/ImageEntry.tsx
 import React, { useState, useRef } from 'react';
-import { Camera, Image as ImageIcon } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface ImageEntryProps {
@@ -15,8 +15,6 @@ const ImageEntry: React.FC<ImageEntryProps> = ({ onSave }) => {
 
     // properly type the refs
     const fileInputRef = useRef<HTMLInputElement>();
-    const videoRef = useRef<HTMLVideoElement>();
-    const streamRef = useRef<MediaStream | null>(null);
 
     // handle image file selection
     const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +66,7 @@ const ImageEntry: React.FC<ImageEntryProps> = ({ onSave }) => {
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        ref={fileInputRef}
+                        ref={fileInputRef as React.LegacyRef<HTMLInputElement>}
                         onChange={handleImageSelect}
                     />
                     <div className="flex gap-4 justify-center">

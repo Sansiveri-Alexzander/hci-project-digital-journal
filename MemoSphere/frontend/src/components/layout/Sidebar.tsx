@@ -83,11 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 <div className="h-16 border-b border-border px-4 flex items-center justify-between">
                     <h2 className="text-lg font-semibold">MemoSphere</h2>
                     <img src={logo} className="h-full max-h-8 w-auto" alt="MemoSphere Logo" />
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={onClose}
-                    >
+                    <Button onClick={onClose}>
                         <X className="h-5 w-5" />
                     </Button>
                 </div>
@@ -97,7 +93,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     {menuItems.map((item) => (
                         <Button
                             key={item.path}
-                            variant={location.pathname === item.path ? "secondary" : "ghost"}
                             className={cn(
                                 "w-full justify-start gap-3 text-base font-medium",
                                 location.pathname === item.path && "bg-muted"
@@ -117,8 +112,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         {quickEntryButtons.map((button) => (
                             <Button
                                 key={button.path}
-                                variant="outline"
-                                size="sm"
                                 className={`animated-button ${button.className} flex flex-col items-center py-4 gap-2 h-auto`}
                                 onClick={() => handleNavigation(button.path)}
                                 title={button.description}
@@ -133,7 +126,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 {/* User Section */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
                     <Button
-                        variant="outline"
                         className="w-full justify-center"
                         onClick={() => {
                             // Handle sign in/out

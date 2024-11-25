@@ -8,7 +8,7 @@ interface EntriesContextType {
     error: string | null;
     addEntry: (entry: Omit<Entry, 'id' | 'date'>) => Promise<Entry>;
     getEntry: (id: string) => Promise<Entry | undefined>;
-    searchEntries: (query: string) => Promise<Entry[]>;
+    // searchEntries: (query: string) => Promise<Entry[]>;
 }
 
 const EntriesContext = createContext<EntriesContextType | undefined>(undefined);
@@ -74,11 +74,12 @@ export const EntriesProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
     };
 
-    const searchEntries = async (query: string): Promise<Entry[]> => {
-        // Implement search functionality using EntryManager
-        // This would need to be added to EntryManager first
-        return [];
-    };
+    
+    // const searchEntries = async (query: string): Promise<Entry[]> => {
+    //     // Implement search functionality using EntryManager
+    //     // This would need to be added to EntryManager first
+    //     return [];
+    // };
 
     return (
         <EntriesContext.Provider 
@@ -88,7 +89,6 @@ export const EntriesProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 error,
                 addEntry, 
                 getEntry, 
-                searchEntries 
             }}
         >
             {children}

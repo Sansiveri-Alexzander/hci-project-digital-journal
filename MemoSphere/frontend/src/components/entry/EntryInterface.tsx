@@ -26,7 +26,7 @@ const EntryInterface: React.FC<EntryInterfaceProps> = ({
             <Card>
                 <div className="p-6">
                     <div className="flex items-center justify-between mb-6">
-                        <Button variant="ghost" size="icon" onClick={onBack}>
+                        <Button onClick={onBack}>
                             <X className="h-5 w-5" />
                         </Button>
 
@@ -41,7 +41,7 @@ const EntryInterface: React.FC<EntryInterfaceProps> = ({
                     </div>
 
                     <div className="mb-4">
-                        <PromptGenerator onSelect={onPromptSelect} />
+                        <PromptGenerator onPromptSelect={onPromptSelect} />
                     </div>
 
                     <div className="space-y-4">

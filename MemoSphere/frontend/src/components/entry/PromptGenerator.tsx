@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Lightbulb, RefreshCw, Sparkles, X } from "lucide-react";
+import { RefreshCw, Sparkles, X } from "lucide-react";
 
 interface PromptGeneratorProps {
     onPromptSelect: (prompt: string) => void;
@@ -90,20 +90,16 @@ const PromptGenerator = ({ onPromptSelect, reflection = false, initialPrompt = n
                     </div>
 
                     <Button
-                        variant="outline"
                         onClick={getRandomPrompt}
                         className="flex items-center gap-2"
-                        size="sm"
                     >
                         <RefreshCw className="h-4 w-4" />
                         New Prompt
                     </Button>
 
                     <Button
-                        variant="ghost"
                         onClick={clearPrompt}
                         className="flex items-center gap-2"
-                        size="sm"
                     >
                         <X className="h-4 w-4" />
                         Remove Prompt
@@ -111,7 +107,6 @@ const PromptGenerator = ({ onPromptSelect, reflection = false, initialPrompt = n
                 </>
             ) : (
                 <Button 
-                    variant="outline"
                     onClick={getRandomPrompt}
                     className="flex items-center gap-2"
                 >

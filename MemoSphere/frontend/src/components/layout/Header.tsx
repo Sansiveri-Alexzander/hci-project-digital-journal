@@ -19,14 +19,11 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
                     {/* Left side */}
                     <div className="flex items-center gap-2 h-16 max-h-16 overflow-hidden">
                         <Button
-                            variant="ghost"
-                            size="icon"
                             onClick={onMenuToggle}
                         >
                             <Menu className="h-5 w-5" />
                         </Button>
                         <Button
-                            variant="ghost"
                             className="font-semibold text-lg"
                             onClick={() => navigate('/')}
                         >
@@ -38,15 +35,11 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
                     {/* Right side */}
                     <div className="flex items-center gap-2">
                         <Button
-                            variant="ghost"
-                            size="icon"
                             onClick={() => navigate('/search')}
                         >
                             <Search className="h-5 w-5" />
                         </Button>
                         <Button
-                            variant="default"
-                            size="icon"
                             onClick={() => navigate('/create/text')}
                         >
                             <Plus className="h-5 w-5" />

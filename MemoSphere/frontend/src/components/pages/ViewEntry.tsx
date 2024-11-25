@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardContent, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, PenLine, Mic, Image, Trash2, Sparkles } from 'lucide-react';
+import { ArrowLeft, Calendar, Trash2 } from 'lucide-react';
 import { Activity, Entry, Feeling } from '@/types/Entry';
 import { EntryManager } from '@/services/EntryManager';
 import ConfirmationModal from '@/components/entry/ConfirmationModal';
@@ -10,12 +10,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown, ChevronUp } from "lucide-react";
 import EntryCard from '../base/EntryCard';
 import { ACTIVITIES, FEELINGS } from '../entry/FeelingActivityModal';
-
-const EntryTypeIcon = {
-    'text': <PenLine className="h-5 w-5" />,
-    'audio': <Mic className="h-5 w-5" />,
-    'image': <Image className="h-5 w-5" />
-};
 
 function getFeelingIcon(feeling: Feeling) {
     const feelingIcon = FEELINGS.find(f => f.id === feeling.id)
@@ -139,7 +133,7 @@ export const ViewEntry = () => {
                             </p>
                         </div>
                         <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="sm">
+                            <Button>
                                 {isChainExpanded ? (
                                     <ChevronUp className="h-4 w-4" />
                                 ) : (

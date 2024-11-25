@@ -1,4 +1,4 @@
-import { Entry, ContentType, Feeling, Activity } from '@/types/Entry';
+import { Entry } from '@/types/Entry';
 
 const STORAGE_KEY = 'memosphere_entries';
 

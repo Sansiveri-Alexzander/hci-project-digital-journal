@@ -1,5 +1,4 @@
 // src/pages/Home.tsx
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,7 +26,6 @@ export const Home = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Text Entry Button */}
                 <Button
-                    variant="outline"
                     className="h-40 flex flex-col items-center justify-center gap-4 p-6 border-2 animated-button text-entry"
                     onClick={() => navigate('/create/text')}
                 >
@@ -40,7 +38,6 @@ export const Home = () => {
 
                 {/* Audio Entry Button */}
                 <Button
-                    variant="outline"
                     className="h-40 flex flex-col items-center justify-center gap-4 p-6 border-2 animated-button audio-entry"
                     onClick={() => navigate('/create/audio')}
                 >
@@ -53,7 +50,6 @@ export const Home = () => {
 
                 {/* Image Entry Button */}
                 <Button
-                    variant="outline"
                     className="animated-button image-entry h-40 flex flex-col items-center justify-center gap-4 p-6 border-2"
                     onClick={() => navigate('/create/image')}
                 >
@@ -76,7 +72,6 @@ export const Home = () => {
                 </Button>
                 <Button
                     className="p-4 border-2 flex-1 animated-button-primary"
-                    variant="secondary"
                     onClick={() => navigate('/reflect')}
                 >
                     <Sparkles />
