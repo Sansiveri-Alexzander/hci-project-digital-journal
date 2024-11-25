@@ -58,8 +58,7 @@ export const AllEntries = () => {
             <div className="flex justify-between items-center mb-6 relative">
                 <Button
                     onClick={() => navigate(-1)}
-                    variant="outline"
-                    className="gap-2"
+                    className="gap-2 absolute"
                 >
                     <ArrowLeft className="h-4 w-4" />
                     Back

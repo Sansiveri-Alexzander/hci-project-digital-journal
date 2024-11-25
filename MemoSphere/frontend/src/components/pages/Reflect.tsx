@@ -7,7 +7,7 @@ import { EntryManager } from '@/services/EntryManager';
 import EntryCard from '../base/EntryCard';
 import { REFLECTION_PROMPTS } from '../entry/PromptGenerator';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, ArrowLeft, PenLine, Check, RotateCcw } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowLeft, PenLine, Check, RotateCcw, Mic, Camera } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -24,6 +24,30 @@ export const Reflect = () => {
     useEffect(() => {
         loadEntries();
     }, []);
+
+    const entryTypes = [
+        {
+            type: 'text',
+            icon: <PenLine className="h-10 w-10" />,
+            title: 'Text Entry',
+            description: 'Write down your thoughts',
+            className: 'text-entry'
+        },
+        {
+            type: 'audio',
+            icon: <Mic className="h-10 w-10" />,
+            title: 'Audio Entry',
+            description: 'Record your voice',
+            className: 'audio-entry'
+        },
+        {
+            type: 'image',
+            icon: <Camera className="h-10 w-10" />,
+            title: 'Image Entry',
+            description: 'Capture a moment',
+            className: 'image-entry'
+        }
+    ];
 
     const loadEntries = async () => {
 
@@ -120,82 +144,84 @@ export const Reflect = () => {
     };
 
     if (!currentEntry) {
+        const content = hasCompletedCycle ? (
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center"
+            >
+                <div className="relative mb-4">
+                    <Sparkles className="h-12 w-12 text-primary" />
+                    <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="absolute -right-1 -top-1 bg-green-500 rounded-full p-1"
+                    >
+                        <Check className="h-4 w-4 text-white" />
+                    </motion.div>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">
+                    Reflection Cycle Complete!
+                </h3>
+                <p className="text-muted-foreground mb-6 max-w-md">
+                    You've gone through all your entries. You can start a new cycle or create a new entry if you haven't found what you're looking for.
+                </p>
+                <div className="flex gap-4">
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button onClick={handleRestartCycle} className="gap-2">
+                            <RotateCcw className="h-4 w-4" />
+                            Start New Cycle
+                        </Button>
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button onClick={() => navigate('/create/text')} className="gap-2">
+                            <PenLine className="h-4 w-4" />
+                            Create New Entry
+                        </Button>
+                    </motion.div>
+                </div>
+            </motion.div>
+        ) : (
+            <>
+                <p className="text-center text-muted-foreground mb-8">
+                    Choose a type of entry to get started with your journaling journey
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {entryTypes.map((entry) => (
+                        <Button
+                            key={entry.type}
+                            className={`animated-button ${entry.className} h-40 flex flex-col items-center justify-center gap-4 p-6 border-2`}
+                            onClick={() => navigate(`/create/${entry.type}`)}
+                        >
+                            {entry.icon}
+                            <div className="flex flex-col items-center">
+                                <span className="text-lg font-semibold">{entry.title}</span>
+                                <span className="text-sm text-muted-foreground">{entry.description}</span>
+                            </div>
+                        </Button>
+                    ))}
+                </div>
+            </>
+        );
+    
         return (
             <div className="container mx-auto px-4 py-6">
+                <div className="flex items-center mb-6">
+                    <Button onClick={() => navigate(-1)} className="gap-2 absolute">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back
+                    </Button>
+                    <h1 className="text-2xl font-bold w-full text-center">Reflect</h1>
+                </div>
                 <Card className="max-w-2xl mx-auto">
-                    <CardContent className="pt-6 text-center">
-                        {hasCompletedCycle ? (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="flex flex-col items-center"
-                            >
-                                <div className="relative mb-4">
-                                    <Sparkles className="h-12 w-12 text-primary" />
-                                    <motion.div
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{ delay: 0.2 }}
-                                        className="absolute -right-1 -top-1 bg-green-500 rounded-full p-1"
-                                    >
-                                        <Check className="h-4 w-4 text-white" />
-                                    </motion.div>
-                                </div>
-                                <h3 className="text-xl font-semibold mb-2">
-                                    Reflection Cycle Complete!
-                                </h3>
-                                <p className="text-muted-foreground mb-6 max-w-md">
-                                    You've gone through all your entries. You can start a new cycle or create a new entry if you haven't found what you're looking for.
-                                </p>
-                                <div className="flex gap-4">
-                                    <motion.div
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        <Button 
-                                            onClick={handleRestartCycle}
-                                            className="gap-2"
-                                        >
-                                            <RotateCcw className="h-4 w-4" />
-                                            Start New Cycle
-                                        </Button>
-                                    </motion.div>
-                                    <motion.div
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        <Button
-                                            onClick={() => navigate('/create/text')}
-                                            className="gap-2"
-                                        >
-                                            <PenLine className="h-4 w-4" />
-                                            Create New Entry
-                                        </Button>
-                                    </motion.div>
-                                </div>
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="flex flex-col items-center"
-                            >
-                                <Sparkles className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                                <h3 className="text-xl font-semibold mb-2">
-                                    No Entries to Reflect On
-                                </h3>
-                                <p className="text-muted-foreground mb-4">
-                                    Create some entries first, then come back to reflect on them!
-                                </p>
-                                <Button 
-                                    onClick={() => navigate('/create/text')}
-                                    className="gap-2"
-                                >
-                                    <PenLine className="h-4 w-4" />
-                                    Create an Entry
-                                </Button>
-                            </motion.div>
-                        )}
+                    <CardHeader>
+                        <CardTitle className="text-center">
+                            {hasCompletedCycle ? 'Reflection Cycle Complete!' : 'Create Your First Entry'}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                        {content}
                     </CardContent>
                 </Card>
             </div>
@@ -206,7 +232,6 @@ export const Reflect = () => {
         <div className="container mx-auto px-4 py-6">
             <Button
                 onClick={() => navigate(-1)}
-                variant="outline"
                 className="gap-2"
             >
                 <ArrowLeft className="h-4 w-4" />
@@ -288,7 +313,7 @@ export const Reflect = () => {
                             </span>
                         </motion.div>
 
-                        {/* Next Button */}
+                        {/* Next/Complete Button */}
                         <motion.div
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -297,12 +322,12 @@ export const Reflect = () => {
                             <Button
                                 onClick={handleNext}
                                 className="rounded-full h-16 w-16 p-0 border-2"
-                                title="Next entry"
+                                title={currentIndex === entries.length - 1 ? "End review" : "Next entry"}
                             >
                                 <ArrowRight className="h-8 w-8 text-muted-foreground" />
                             </Button>
                             <span className="text-sm text-muted-foreground">
-                                Next
+                                {currentIndex === entries.length - 1 ? 'End' : 'Next'}
                             </span>
                         </motion.div>
                     </div>
