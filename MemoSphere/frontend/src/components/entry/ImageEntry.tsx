@@ -108,10 +108,8 @@ const ImageEntry: React.FC<ImageEntryProps> = ({ onSave }) => {
                         />
                         <div className="absolute top-4 right-4">
                             <Button
-                                variant="destructive"
                                 onClick={() => setShowDeleteModal(true)}
                                 className="flex items-center px-4 py-2 gap-3 bg-red-600 hover:bg-red-700 text-white"
-                                size="default"
                             >
                                 <Trash2 className="h-5 w-5" />
                                 <span className="font-medium">Delete Image</span>
@@ -155,7 +153,6 @@ const ImageEntry: React.FC<ImageEntryProps> = ({ onSave }) => {
                             </Button>
                         )}
                         <Button
-                            variant="outline"
                             onClick={handleUploadClick}
                             className="gap-2"
                         >
@@ -183,7 +180,6 @@ const ImageEntry: React.FC<ImageEntryProps> = ({ onSave }) => {
                     <canvas ref={canvasRef} className="hidden" />
                     <DialogFooter className="flex justify-between sm:justify-between">
                         <Button
-                            variant="outline"
                             onClick={handleCloseCamera}
                             className="bg-secondary hover:bg-secondary/90"
                         >
