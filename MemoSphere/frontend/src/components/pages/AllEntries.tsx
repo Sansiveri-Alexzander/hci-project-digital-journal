@@ -56,13 +56,14 @@ export const AllEntries = () => {
     return (
         <div className="container mx-auto px-4 py-6">
             <div className="flex justify-between items-center mb-6 relative">
-                <button
-                    className="absolute left-0 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                <Button
                     onClick={() => navigate(-1)}
+                    variant="outline"
+                    className="gap-2"
                 >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    <ArrowLeft className="h-4 w-4" />
                     Back
-                </button>
+                </Button>
                 <h1 className="text-center mx-auto text-2xl font-bold mb-6">All Entries</h1>
             </div>
 
