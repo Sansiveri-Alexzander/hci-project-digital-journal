@@ -6,76 +6,97 @@ import 'react-calendar/dist/Calendar.css';
 import styled from 'styled-components';
 
 const StyledCalendar = styled(Calendar)`
-  &.react-calendar {
-    border: none;
-    border-radius: 10px;
-    background-color: #f3e5f5;
-    color: #4a148c;
-    font-family: Arial, sans-serif;
-  }
-
-  & .react-calendar__navigation {
-    display: flex;
-    justify-content: space-between;
-    background-color: #7b1fa2;
-    color: white;
-    padding: 0.5em;
-    border-radius: 10px 10px 0 0;
-  }
-
-  & .react-calendar__month-view__weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr); 
-    text-align: center;
-    background-color: #ce93d8;
-    font-weight: bold;
-    padding: 0.5em 0;
-  }
-
-  & .react-calendar__month-view__days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr); 
-    grid-gap: 3px; 
-  }
-
-  & .react-calendar__tile {
-    background: #e1bee7;
-    border: 1px solid transparent;
+    /* ~~~ container styles ~~~ */
+    max-width: 600px;
+    margin: auto;
+    margin-top: 20px;
+    background-color: white;
     padding: 10px;
-    margin: 3px;
+    border-radius: 3px;
+
+    /* ~~~ navigation styles ~~~ */
+  .react-calendar__navigation {
+    display: flex;
+
+    .react-calendar__navigation__label {
+      font-weight: bold;
+    }
+
+    .react-calendar__navigation__arrow {
+      flex-grow: 0.333;
+    }
+  }
+
+  /* ~~~ label styles ~~~ */
+  .react-calendar__month-view__weekdays {
     text-align: center;
-    border-radius: 5px;
-    font-weight: bold;
-    color: #4a148c;
   }
 
-  & .react-calendar__tile:hover {
-    background: #ba68c8;
-    color: white;
+  /* ~~~ button styles ~~~ */
+  button {
+    margin: 3px;
+    background-color: white;
+    border: 0;
+    border-radius: 3px;
+    color: black;
+    padding: 5px 0;
+    
+
+    &:hover {
+      background-color: #556b55;
+    }
+
+    &:active {
+      background-color: #a5c1a5;
+    }
   }
 
-  & .react-calendar__tile--now {
-    background: #ab47bc;
-    font-weight: bold;
-    color: white;
+  /* ~~~ day grid styles ~~~ */
+  .react-calendar__month-view__days {
+    display: grid !important;
+    grid-template-columns: 14.2% 14.2% 14.2% 14.2% 14.2% 14.2% 14.2%; 
+
+    .react-calendar__tile {
+      max-width: initial !important;
+    }
   }
 
-  & .react-calendar__tile--active {
-    background: #6a1b9a;
-    color: white;
+  /* ~~~ neighboring month & weekend styles ~~~ */
+  .react-calendar__month-view__days__day--neighboringMonth {
+    opacity: 0.5;
+  }
+  .react-calendar__month-view__days__day--weekend {
+    color: red;
   }
 
-  & .react-calendar__month-view__days__day--neighboringMonth {
-    opacity: 0.7;
+  /* ~~~ active day styles ~~~ */
+  .react-calendar__tile--range {
+      outline: solid black;
+      background-color: white !important;
   }
 
-  & .react-calendar__month-view__days__day--weekend {
-    color: #dfdfdf;
+  /* ~~~ other view styles ~~~ */
+  .react-calendar__year-view__months, 
+  .react-calendar__decade-view__years, 
+  .react-calendar__century-view__decades {
+    display: grid !important;
+    grid-template-columns: 20% 20% 20% 20% 20%;
+
+    &.react-calendar__year-view__months {
+      grid-template-columns: 33.3% 33.3% 33.3%;
+    }
+
+    .react-calendar__tile {
+      max-width: initial !important;
+    }
   }
 `;
 
+interface DateSelectorProps {
+    onDateSelect: (date: Date) => void; 
+  }
 
-const DateSelector = () => {
+const DateSelector: React.FC<DateSelectorProps> = ({ onDateSelect }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
@@ -85,6 +106,7 @@ const DateSelector = () => {
 
     const handleDateChange = (date: Date) => {
         setSelectedDate(date);
+        onDateSelect(date);
         setIsModalOpen(false); 
     };
 
@@ -108,11 +130,12 @@ const DateSelector = () => {
                         <h3 className="text-lg font-semibold mb-4">Pick a Date</h3>
                         <StyledCalendar
                             onChange={handleDateChange}
-                            value={selectedDate}
+                            value={selectedDate} 
+                            calendarType="gregory"
                         />
                         <div className="mt-4 flex justify-end">
                             <Button variant="outline" onClick={toggleModal} className="mr-2">
-                                Cancel
+                                Done
                             </Button>
                         </div>
                     </div>

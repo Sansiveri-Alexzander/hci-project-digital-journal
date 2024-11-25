@@ -329,11 +329,10 @@ export const EntryCreate = () => {
                     {/* Date Selector */}
                     <DateSelector />
 
-                    {/* Prompt Generator */}
-                    <PromptGenerator />
                     {/* Add reflection chain */}
                     {renderReflectionChain()}
 
+                    {/* Prompt Generator */}
                     <div className="mb-6">
                         <PromptGenerator 
                             onPromptSelect={handlePromptSelect}
