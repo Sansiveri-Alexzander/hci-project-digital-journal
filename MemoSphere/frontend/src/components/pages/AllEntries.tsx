@@ -6,6 +6,7 @@ import { Entry } from '@/types/Entry';
 import { EntryManager } from '@/services/EntryManager';
 import { ArrowLeft, PenLine, Mic, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 
 export const AllEntries = () => {
     const [entries, setEntries] = useState<Entry[]>([]);
