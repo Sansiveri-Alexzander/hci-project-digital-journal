@@ -6,6 +6,7 @@ import { Entry } from '@/types/Entry';
 import { EntryManager } from '@/services/EntryManager';
 import { ArrowLeft, PenLine, Mic, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardTitle, CardHeader } from '../ui/card';
 
 export const AllEntries = () => {
     const [entries, setEntries] = useState<Entry[]>([]);
@@ -80,7 +81,6 @@ export const AllEntries = () => {
                             {entryTypes.map((entry) => (
                                 <Button
                                     key={entry.type}
-                                    variant="outline"
                                     className={`animated-button ${entry.className} h-40 flex flex-col items-center justify-center gap-4 p-6 border-2`}
                                     onClick={() => navigate(`/create/${entry.type}`)}
                                 >

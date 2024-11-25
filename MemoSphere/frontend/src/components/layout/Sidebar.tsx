@@ -82,8 +82,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     <h2 className="text-lg font-semibold">MemoSphere</h2>
                     <img src={logo} className="h-full max-h-8 w-auto" alt="MemoSphere Logo" />
                     <Button
-                        variant="ghost"
-                        size="icon"
                         onClick={onClose}
                     >
                         <X className="h-5 w-5" />
@@ -95,7 +93,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     {menuItems.map((item) => (
                         <Button
                             key={item.path}
-                            variant={location.pathname === item.path ? "secondary" : "ghost"}
                             className={cn(
                                 "w-full justify-start gap-3 text-base font-medium",
                                 location.pathname === item.path && "bg-muted"
@@ -115,8 +112,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         {quickEntryButtons.map((button) => (
                             <Button
                                 key={button.path}
-                                variant="outline"
-                                size="sm"
                                 className={`animated-button ${button.className} flex flex-col items-center py-4 gap-2 h-auto`}
                                 onClick={() => handleNavigation(button.path)}
                                 title={button.description}
