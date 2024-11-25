@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://Sansiveri-Alexzander.github.io/MemoSphere",
+  "homepage": "https://sansiveri-alexzander.github.io/hci-project-digital-journal",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
