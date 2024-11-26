@@ -9,6 +9,7 @@ import { REFLECTION_PROMPTS } from '../entry/PromptGenerator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ArrowRight, ArrowLeft, PenLine, Check, RotateCcw, Mic, Camera } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import '@/styles/background-animation.css';
 
 
 export const Reflect = () => {
@@ -206,138 +207,144 @@ export const Reflect = () => {
         );
     
         return (
-            <div className="container mx-auto px-4 py-6">
-                <div className="flex items-center mb-6">
-                    <Button onClick={() => navigate(-1)} className="gap-2 absolute">
-                        <ArrowLeft className="h-4 w-4" />
-                        Back
-                    </Button>
-                    <h1 className="text-2xl font-bold w-full text-center">Reflect</h1>
+            <>
+                <div className="animated-background-reflect" />
+                <div className="container mx-auto px-4 py-6 relative z-10">
+                    <div className="flex items-center mb-6">
+                        <Button onClick={() => navigate(-1)} className="gap-2 absolute">
+                            <ArrowLeft className="h-4 w-4" />
+                            Back
+                        </Button>
+                        <h1 className="text-2xl font-bold w-full text-center">Reflect</h1>
+                    </div>
+                    <Card className="max-w-2xl mx-auto">
+                        <CardHeader>
+                            <CardTitle className="text-center">
+                                {hasCompletedCycle ? 'Reflection Cycle Complete!' : 'Create Your First Entry'}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            {content}
+                        </CardContent>
+                    </Card>
                 </div>
-                <Card className="max-w-2xl mx-auto">
-                    <CardHeader>
-                        <CardTitle className="text-center">
-                            {hasCompletedCycle ? 'Reflection Cycle Complete!' : 'Create Your First Entry'}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                        {content}
-                    </CardContent>
-                </Card>
-            </div>
+            </>
         );
     }
 
     return (
-        <div className="container mx-auto px-4 py-6">
-            <Button
-                onClick={() => navigate(-1)}
-                className="gap-2"
-            >
-                <ArrowLeft className="h-4 w-4" />
-                Back
-            </Button>
-            <Card className="max-w-2xl mx-auto">
-                <CardHeader>
-                    <CardTitle className="text-center">Find an Entry to Reflect On</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center">
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={currentEntry.id}
-                            initial={{ 
-                                x: direction === null ? 0 : direction === 'left' ? 300 : -300,
-                                opacity: 0 
-                            }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ 
-                                x: direction === 'left' ? -300 : 300,
-                                opacity: 0 
-                            }}
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="w-full"
-                        >
-                            <EntryCard entry={currentEntry} mode="summary" />
-                            
+        <>
+            <div className="animated-background-reflect" />
+            <div className="container mx-auto px-4 py-6 relative z-10">
+                <Button
+                    onClick={() => navigate(-1)}
+                    className="gap-2"
+                >
+                    <ArrowLeft className="h-4 w-4" />
+                    Back
+                </Button>
+                <Card className="max-w-2xl mx-auto bg-white/90 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className="text-center">Find an Entry to Reflect On</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col items-center">
+                        <AnimatePresence mode="wait">
                             <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20"
+                                key={currentEntry.id}
+                                initial={{ 
+                                    x: direction === null ? 0 : direction === 'left' ? 300 : -300,
+                                    opacity: 0 
+                                }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ 
+                                    x: direction === 'left' ? -300 : 300,
+                                    opacity: 0 
+                                }}
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                className="w-full"
                             >
-                                <p className="text-lg text-center text-primary/80 italic">
-                                    "{currentPrompt}"
-                                </p>
+                                <EntryCard entry={currentEntry} mode="summary" />
+                                
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20"
+                                >
+                                    <p className="text-lg text-center text-primary/80 italic">
+                                        "{currentPrompt}"
+                                    </p>
+                                </motion.div>
                             </motion.div>
-                        </motion.div>
-                    </AnimatePresence>
-                </CardContent>
-                <CardFooter className="flex flex-col items-center gap-6 pt-6">
-                    <div className="flex justify-center gap-8">
-                        {/* Back Button */}
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="flex flex-col items-center gap-2"
-                        >
-                            <Button
-                                onClick={handleBack}
-                                disabled={currentIndex === 0}
-                                className={`rounded-full h-16 w-16 p-0 border-2 ${
-                                    currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
-                                title="Previous entry"
+                        </AnimatePresence>
+                    </CardContent>
+                    <CardFooter className="flex flex-col items-center gap-6 pt-6">
+                        <div className="flex justify-center gap-8">
+                            {/* Back Button */}
+                            <motion.div
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="flex flex-col items-center gap-2"
                             >
-                                <ArrowLeft className="h-8 w-8 text-muted-foreground" />
-                            </Button>
-                            <span className="text-sm text-muted-foreground">
-                                Previous
-                            </span>
-                        </motion.div>
+                                <Button
+                                    onClick={handleBack}
+                                    disabled={currentIndex === 0}
+                                    className={`rounded-full h-16 w-16 p-0 border-2 ${
+                                        currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                                    }`}
+                                    title="Previous entry"
+                                >
+                                    <ArrowLeft className="h-8 w-8 text-muted-foreground" />
+                                </Button>
+                                <span className="text-sm text-muted-foreground">
+                                    Previous
+                                </span>
+                            </motion.div>
 
-                        {/* Reflect Button */}
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="flex flex-col items-center gap-2"
-                        >
-                            <Button
-                                onClick={handleReflect}
-                                className="rounded-full h-16 w-16 p-0 bg-primary hover:bg-primary/90"
-                                title="Reflect on this entry"
+                            {/* Reflect Button */}
+                            <motion.div
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="flex flex-col items-center gap-2"
                             >
-                                <Sparkles className="h-8 w-8 text-primary-foreground" />
-                            </Button>
-                            <span className="text-sm font-medium text-primary">
-                                Reflect
-                            </span>
-                        </motion.div>
+                                <Button
+                                    onClick={handleReflect}
+                                    className="rounded-full h-16 w-16 p-0 bg-primary hover:bg-primary/90"
+                                    title="Reflect on this entry"
+                                >
+                                    <Sparkles className="h-8 w-8 text-primary-foreground" />
+                                </Button>
+                                <span className="text-sm font-medium text-primary">
+                                    Reflect
+                                </span>
+                            </motion.div>
 
-                        {/* Next/Complete Button */}
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="flex flex-col items-center gap-2"
-                        >
-                            <Button
-                                onClick={handleNext}
-                                className="rounded-full h-16 w-16 p-0 border-2"
-                                title={currentIndex === entries.length - 1 ? "End review" : "Next entry"}
+                            {/* Next/Complete Button */}
+                            <motion.div
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="flex flex-col items-center gap-2"
                             >
-                                <ArrowRight className="h-8 w-8 text-muted-foreground" />
-                            </Button>
-                            <span className="text-sm text-muted-foreground">
-                                {currentIndex === entries.length - 1 ? 'End' : 'Next'}
-                            </span>
-                        </motion.div>
-                    </div>
+                                <Button
+                                    onClick={handleNext}
+                                    className="rounded-full h-16 w-16 p-0 border-2"
+                                    title={currentIndex === entries.length - 1 ? "End review" : "Next entry"}
+                                >
+                                    <ArrowRight className="h-8 w-8 text-muted-foreground" />
+                                </Button>
+                                <span className="text-sm text-muted-foreground">
+                                    {currentIndex === entries.length - 1 ? 'End' : 'Next'}
+                                </span>
+                            </motion.div>
+                        </div>
 
-                    {/* Progress indicator */}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span>Entry {currentIndex + 1} of {entries.length}</span>
-                    </div>
-                </CardFooter>
-            </Card>
-        </div>
+                        {/* Progress indicator */}
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span>Entry {currentIndex + 1} of {entries.length}</span>
+                        </div>
+                    </CardFooter>
+                </Card>
+            </div>
+        </>
     );
 };

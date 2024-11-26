@@ -10,6 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown, ChevronUp } from "lucide-react";
 import EntryCard from '../base/EntryCard';
 import { ACTIVITIES, FEELINGS } from '../entry/FeelingActivityModal';
+import '@/styles/background-animation.css';
 
 // Get colors based on entry type
 const getEntryColors = (type: string) => {
@@ -19,7 +20,7 @@ const getEntryColors = (type: string) => {
                 background: 'bg-[#F2D0A4]/10',
                 border: 'border-[#F2D0A4]/30',
                 hover: 'hover:border-[#F2D0A4]/60',
-                icon: 'text-[#F2D0A4]',
+                icon: 'text-[#F2D0A4] bg-[#F2D0A4]/10 px-2 py-1 rounded-md font-medium',
                 accent: '#F2D0A4'
             };
         case 'audio':
@@ -27,7 +28,7 @@ const getEntryColors = (type: string) => {
                 background: 'bg-[#69DC9E]/10',
                 border: 'border-[#69DC9E]/30',
                 hover: 'hover:border-[#69DC9E]/60',
-                icon: 'text-[#69DC9E]',
+                icon: 'text-[#69DC9E] bg-[#69DC9E]/10 px-2 py-1 rounded-md font-medium',
                 accent: '#69DC9E'
             };
         case 'image':
@@ -35,7 +36,7 @@ const getEntryColors = (type: string) => {
                 background: 'bg-[#7D80DA]/10',
                 border: 'border-[#7D80DA]/30',
                 hover: 'hover:border-[#7D80DA]/60',
-                icon: 'text-[#7D80DA]',
+                icon: 'text-[#7D80DA] bg-[#7D80DA]/10 px-2 py-1 rounded-md font-medium',
                 accent: '#7D80DA'
             };
         default:
@@ -43,7 +44,7 @@ const getEntryColors = (type: string) => {
                 background: 'bg-background',
                 border: 'border-border',
                 hover: 'hover:border-primary',
-                icon: 'text-foreground',
+                icon: 'text-foreground bg-foreground/10 px-2 py-1 rounded-md font-medium',
                 accent: '#ed786b'
             };
     }
@@ -230,7 +231,6 @@ export const ViewEntry = () => {
         <div className="flex justify-between mb-6">
             <Button
                 onClick={() => navigate(-1)}
-                variant="outline"
                 className="gap-2"
             >
                 <ArrowLeft className="h-4 w-4" />
@@ -305,7 +305,7 @@ export const ViewEntry = () => {
                             </p>
                         </div>
                         <CollapsibleTrigger asChild>
-                            <Button variant="outline">
+                            <Button>
                                 {isChainExpanded ? (
                                     <ChevronUp className="h-4 w-4" />
                                 ) : (
@@ -351,91 +351,115 @@ export const ViewEntry = () => {
 
     if (isLoading) {
         return (
-            <div className="container mx-auto px-4 py-6 max-w-3xl">
-                <Card className={`animate-pulse ${colors.background} ${colors.border}`}>
-                    <CardContent className="p-6 space-y-4">
-                        <div className="h-8 bg-muted rounded w-1/3" />
-                        <div className="h-4 bg-muted rounded w-1/4" />
-                        <div className="h-40 bg-muted rounded" />
-                    </CardContent>
-                </Card>
-            </div>
+            <>
+                <div className="animated-background-view" />
+                <div className="container mx-auto px-4 py-6 max-w-3xl relative z-10">
+                    <Card className={`animate-pulse ${colors.background} ${colors.border}`}>
+                        <CardContent className="p-6 space-y-4">
+                            <div className="h-8 bg-muted rounded w-1/3" />
+                            <div className="h-4 bg-muted rounded w-1/4" />
+                            <div className="h-40 bg-muted rounded" />
+                        </CardContent>
+                    </Card>
+                </div>
+            </>
         );
     }
 
     if (error || !entry) {
         return (
-            <div className="container mx-auto px-4 py-6 max-w-3xl">
-                <Card className="bg-destructive/10 border-destructive/20">
-                    <CardContent className="p-6 text-center space-y-4">
-                        <p className="text-destructive">{error || 'Entry not found'}</p>
-                        <Button
-                            onClick={() => navigate(-1)}
-                            variant="outline"
-                            className="gap-2"
-                        >
-                            <ArrowLeft className="h-4 w-4" />
-                            Go Back
-                        </Button>
-                    </CardContent>
-                </Card>
+            <>
+                <div className="animated-background-view" />
+                <div className="container mx-auto px-4 py-6 max-w-3xl relative z-10">
+                    <Card className="bg-destructive/10 border-destructive/20">
+                        <CardContent className="p-6 text-center space-y-4">
+                            <p className="text-destructive">{error || 'Entry not found'}</p>
+                            <Button
+                                onClick={() => navigate(-1)}
+                                className="gap-2"
+                            >
+                                <ArrowLeft className="h-4 w-4" />
+                                Go Back
+                            </Button>
+                        </CardContent>
+                    </Card>
             </div>
+            </>
         );
     }
 
     return (
-        <div className="container mx-auto px-4 py-6 max-w-3xl">
-            {renderActionButtons()}
-            <ConfirmationModal
-                isOpen={showDeleteModal}
-                onConfirm={handleDeleteConfirm}
-                onCancel={() => setShowDeleteModal(false)}
-                title="Delete Entry"
-                description="Are you sure you want to delete this entry? This action cannot be undone."
-                confirmText="Delete"
-                cancelText="Cancel"
-            />
+        <>
+            <div className={`animated-background-${entry.contentType}`} />
+            <div className="container mx-auto px-4 py-6 max-w-3xl relative z-10">
+                {renderActionButtons()}
+                <ConfirmationModal
+                    isOpen={showDeleteModal}
+                    onConfirm={handleDeleteConfirm}
+                    onCancel={() => setShowDeleteModal(false)}
+                    title="Delete Entry"
+                    description="Are you sure you want to delete this entry? This action cannot be undone."
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                />
 
-            <Card className={`${colors.background} ${colors.border}`}>
-                <CardHeader>
-                    <div className="flex items-center justify-between gap-4">
-                        <div className="space-y-1 flex-1">
-                            <div className={`inline-flex items-center gap-2 ${colors.icon}`}>
-                                {EntryTypeIcon[entry.contentType]}
-                                <span className="text-sm font-medium capitalize">
-                                    {entry.contentType} Entry
-                                </span>
-                            </div>
-                            <CardTitle className="text-2xl leading-tight">
-                                {entry.title}
-                            </CardTitle>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Calendar className="h-4 w-4" />
-                                {new Date(entry.date).toLocaleDateString()}
+                    <Card className={`
+                                    ${colors.background} 
+                                    ${colors.border} 
+                                    bg-white/95 
+                                    backdrop-blur-md 
+                                    shadow-lg 
+                                    border-2
+                                    rounded-xl
+                                `}>
+                    <CardHeader>
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="space-y-1 flex-1">
+                                <div className={`
+                                    inline-flex items-center gap-2 
+                                    bg-white 
+                                    shadow-sm 
+                                    px-3 py-2 
+                                    rounded-md 
+                                    border-2 
+                                    ${colors.border}
+                                `}>
+                                    {EntryTypeIcon[entry.contentType]}
+                                    <span className="text-sm font-medium capitalize">
+                                        {entry.contentType} Entry
+                                    </span>
+                                </div>
+                                <CardTitle className="text-2xl leading-tight">
+                                    {entry.title}
+                                </CardTitle>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Calendar className="h-4 w-4" />
+                                    {new Date(entry.date).toLocaleDateString()}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {renderReflectionChain()}
+                        {renderReflectionChain()}
 
-                    {entry.prompt && (
-                        <div className={`mt-4 p-4 rounded-lg border ${colors.border}`}>
-                            <p className={`text-lg ${colors.icon} pl-6 border-l-2 italic`}>
-                                "{entry.prompt}"
-                            </p>
-                        </div>
-                    )}
-                </CardHeader>
+                        {entry.prompt && (
+                            <div className={`mt-4 p-4 rounded-lg border ${colors.border}`}>
+                                <p className={`text-lg ${colors.icon} pl-6 border-l-2 italic`}>
+                                    "{entry.prompt}"
+                                </p>
+                            </div>
+                        )}
+                    </CardHeader>
 
-                <CardContent className="space-y-6">
-                    {renderContent()}
-                    {renderFeelingActivityIcons()}
-                </CardContent>
+                    <CardContent className="space-y-6 border-t border-border/20 pt-6">
+                        {renderContent()}
+                        {renderFeelingActivityIcons()}
+                    </CardContent>
 
-                <CardFooter className="flex justify-end pt-6">
-                    {renderReflectionButton()}
-                </CardFooter>
-            </Card>
-        </div>
+                    <CardFooter className="flex justify-end pt-6 border-t border-border/20">
+                        {renderReflectionButton()}
+                    </CardFooter>
+                </Card>
+            </div>
+        </>
     );
 };

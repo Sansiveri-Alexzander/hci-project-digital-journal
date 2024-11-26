@@ -29,3 +29,13 @@
     background-color: var(--primary-color);
     border-color: #000;
 }
+
+.animated-button.view-entry:hover {
+    background-color: var(--view-entry-color, rgba(173, 216, 230, 0.5));
+    border-color: #000;
+}
+
+.animated-button.reflect-entry:hover {
+    background-color: var(--reflect-entry-color, rgba(255, 182, 193, 0.5));
+    border-color: #000;
+}

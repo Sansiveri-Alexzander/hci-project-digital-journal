@@ -65,20 +65,26 @@ export const Home = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-4 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                     <Button
-                        className="p-4 border-2 flex-1 animated-button-primary"
+                        className="h-32 flex flex-col items-center justify-center gap-3 p-6 border-2 animated-button view-entry"
                         onClick={() => navigate('/entries')}
                     >
-                        <Eye />
-                        <p>View All Entries</p>
+                        <Eye className="h-8 w-8" />
+                        <div className="flex flex-col items-center">
+                            <span className="text-lg font-semibold">View All Entries</span>
+                            <span className="text-sm">Browse your journey</span>
+                        </div>
                     </Button>
                     <Button
-                        className="p-4 border-2 flex-1 animated-button-primary"
+                        className="h-32 flex flex-col items-center justify-center gap-3 p-6 border-2 animated-button reflect-entry"
                         onClick={() => navigate('/reflect')}
                     >
-                        <Sparkles />
-                        <p>Reflect</p>
+                        <Sparkles className="h-8 w-8" />
+                        <div className="flex flex-col items-center">
+                            <span className="text-lg font-semibold">Reflect</span>
+                            <span className="text-sm">Review and contemplate</span>
+                        </div>
                     </Button>
                 </div>
             </div>

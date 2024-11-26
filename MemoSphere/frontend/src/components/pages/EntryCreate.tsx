@@ -74,6 +74,19 @@ export const EntryCreate = () => {
         loadReflectionChain();
     }, [reflectionEntryId]);
 
+    const getBackgroundClass = () => {
+        switch (currentType) {
+            case 'text':
+                return 'animated-background-text';
+            case 'audio':
+                return 'animated-background-audio';
+            case 'image':
+                return 'animated-background-image';
+            default:
+                return 'animated-background';
+        }
+    };
+
     const handlePromptSelect = (prompt: string) => {
         setSelectedPrompt(prompt);
     };
@@ -299,101 +312,104 @@ export const EntryCreate = () => {
     };
 
     return (
-        <div className={"container mx-auto px-4 py-6 max-w-2xl"}>
-            <Card>
-                <CardContent className="p-6">
-                    {/* Header */}
-                    <div className="flex items-center justify-between mb-6">
-                        <Button onClick={handleBack}>
-                            <X className="h-5 w-5" />
-                        </Button>
-                        <div className="flex-1 mx-4">
-                            <Input
-                                type="text"
-                                placeholder="Entry Title"
-                                value={pendingContent.title}
-                                onChange={handleTitleChange}
-                                className="text-xl font-semibold h-12 px-4 text-foreground placeholder:text-muted-foreground"
-                                style={{ fontSize: '1.25rem' }}
+        <>
+            <div className={getBackgroundClass()} />
+            <div className="container mx-auto px-4 py-6 max-w-2xl">
+                <Card className="backdrop-blur-sm">
+                    <CardContent className="p-6">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-6">
+                            <Button onClick={handleBack}>
+                                <X className="h-5 w-5" />
+                            </Button>
+                            <div className="flex-1 mx-4">
+                                <Input
+                                    type="text"
+                                    placeholder="Entry Title"
+                                    value={pendingContent.title}
+                                    onChange={handleTitleChange}
+                                    className="text-xl font-semibold h-12 px-4 text-foreground placeholder:text-muted-foreground"
+                                    style={{ fontSize: '1.25rem' }}
+                                />
+                            </div>
+                            <Button
+                                onClick={handleSave}
+                                disabled={!pendingContent.hasContent}
+                            >
+                                Save
+                            </Button>
+                        </div>
+
+                        {/* Reflection chain */}
+                        {renderReflectionChain()}
+
+                        <div className="mb-6">
+                            <PromptGenerator 
+                                onPromptSelect={handlePromptSelect}
+                                reflection={pendingContent.isReflection}
+                                initialPrompt={initialPrompt()}
                             />
                         </div>
-                        <Button
-                            onClick={handleSave}
-                            disabled={!pendingContent.hasContent}
-                        >
-                            Save
-                        </Button>
-                    </div>
 
-                    {/* Add reflection chain */}
-                    {renderReflectionChain()}
+                        {/* Entry Component */}
+                        {renderEntryComponent()}
 
-                    <div className="mb-6">
-                        <PromptGenerator 
-                            onPromptSelect={handlePromptSelect}
-                            reflection={pendingContent.isReflection}
-                            initialPrompt={initialPrompt()}
-                        />
-                    </div>
-
-                    {/* Entry Component */}
-                    {renderEntryComponent()}
-
-                    {/* Entry Type Switcher - New position */}
-                    <div className="mt-6 pt-4 border-t">
-                        <p className="text-sm text-gray-500 mb-2">Change entry type:</p>
-                        <div className="flex gap-2 justify-center">
-                            {currentType !== 'text' && (
-                                <Button
-                                    onClick={() => handleTypeSwitch('text')}
-                                    className="gap-2"
-                                >
-                                    <Type className="h-4 w-4" />
-                                    Text
-                                </Button>
-                            )}
-                            {currentType !== 'audio' && (
-                                <Button
-                                    onClick={() => handleTypeSwitch('audio')}
-                                    className="gap-2"
-                                >
-                                    <Mic className="h-4 w-4" />
-                                    Audio
-                                </Button>
-                            )}
-                            {currentType !== 'image' && (
-                                <Button
-                                    onClick={() => handleTypeSwitch('image')}
-                                    className="gap-2"
-                                >
-                                    <ImageIcon className="h-4 w-4" />
-                                    Image
-                                </Button>
-                            )}
+                        {/* Entry Type Switcher - New position */}
+                        <div className="mt-6 pt-4 border-t">
+                            <p className="text-sm text-gray-500 mb-2">Change entry type:</p>
+                            <div className="flex gap-2 justify-center">
+                                {currentType !== 'text' && (
+                                    <Button
+                                        onClick={() => handleTypeSwitch('text')}
+                                        className="gap-2"
+                                    >
+                                        <Type className="h-4 w-4" />
+                                        Text
+                                    </Button>
+                                )}
+                                {currentType !== 'audio' && (
+                                    <Button
+                                        onClick={() => handleTypeSwitch('audio')}
+                                        className="gap-2"
+                                    >
+                                        <Mic className="h-4 w-4" />
+                                        Audio
+                                    </Button>
+                                )}
+                                {currentType !== 'image' && (
+                                    <Button
+                                        onClick={() => handleTypeSwitch('image')}
+                                        className="gap-2"
+                                    >
+                                        <ImageIcon className="h-4 w-4" />
+                                        Image
+                                    </Button>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
 
-            {/* Reflection Modal */}
-            <FeelingActivityModal
-                isOpen={showReflection}
-                onClose={() => setShowReflection(false)}
-                onSave={handleReflectionSave}
-                onSkip={handleReflectionSkip}
-            />
+                {/* Reflection Modal */}
+                <FeelingActivityModal
+                    isOpen={showReflection}
+                    onClose={() => setShowReflection(false)}
+                    onSave={handleReflectionSave}
+                    onSkip={handleReflectionSkip}
+                />
 
-            {/* Unsaved Changes Modal */}
-            <ConfirmationModal
-                isOpen={showUnsavedModal}
-                onConfirm={handleUnsavedConfirm}
-                onCancel={handleUnsavedCancel}
-                title="Unsaved Changes"
-                description="You have unsaved changes. Are you sure you want to leave? Your changes will be lost."
-                confirmText="Leave"
-                cancelText="Stay"
-            />
-        </div>
+                {/* Unsaved Changes Modal */}
+                <ConfirmationModal
+                    isOpen={showUnsavedModal}
+                    onConfirm={handleUnsavedConfirm}
+                    onCancel={handleUnsavedCancel}
+                    title="Unsaved Changes"
+                    description="You have unsaved changes. Are you sure you want to leave? Your changes will be lost."
+                    confirmText="Leave"
+                    cancelText="Stay"
+                />
+            </div>
+        </>
     );
 };
 

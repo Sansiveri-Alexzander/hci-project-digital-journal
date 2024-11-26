@@ -7,6 +7,7 @@ import { EntryManager } from '@/services/EntryManager';
 import { ArrowLeft, PenLine, Mic, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
+import '@/styles/background-animation.css';
 
 export const AllEntries = () => {
     const [entries, setEntries] = useState<Entry[]>([]);
@@ -54,7 +55,7 @@ export const AllEntries = () => {
     }, []);
 
     return (
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4 py-6 relative z-10">
             <div className="flex justify-between items-center mb-6 relative">
                 <Button
                     onClick={() => navigate(-1)}
