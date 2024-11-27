@@ -275,76 +275,73 @@ export const ViewEntry = () => {
             navigate(`/entries/${entryId}`);
         };
 
-        if (reflectionChain.length === 1) {
-            return (
-                <div className="mb-6">
-                    <div className="flex flex-col gap-2 mb-2">
-                        <h3 className="text-lg font-semibold">Reflecting on</h3>
-                        <p className="text-sm text-muted-foreground">
-                            Entry from {new Date(reflectionChain[0].date).toLocaleDateString()}
-                        </p>
-                    </div>
-                    <EntryCard
-                        entry={reflectionChain[0]}
-                        mode="summary"
-                        isReflectionTarget={true}
-                        onClick={() => handleEntryClick(reflectionChain[0].id)}
-                    />
-                </div>
-            );
-        }
+        // Get the immediate parent entry (the one being reflected upon)
+        const parentEntry = reflectionChain[0];
+        // Get the rest of the chain for the collapsible
+        const olderEntries = reflectionChain.slice(1);
 
         return (
-            <div className="mb-6">
-                <Collapsible open={isChainExpanded} onOpenChange={setIsChainExpanded}>
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="space-y-1">
-                            <h3 className="text-lg font-semibold">Reflection Chain</h3>
-                            <p className="text-sm text-muted-foreground">
-                                {reflectionChain.length} connected entries
-                            </p>
-                        </div>
+            <div className="space-y-6">
+                {/* Always show the parent entry */}
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-primary" />
+                        <h3 className="text-lg font-semibold">Reflected On</h3>
+                    </div>
+                    <EntryCard
+                        entry={parentEntry}
+                        mode="summary"
+                        isReflectionTarget={true}
+                        onClick={() => handleEntryClick(parentEntry.id)}
+                    />
+                </div>
+
+                {/* Only show collapsible if there are more entries in the chain */}
+                {olderEntries.length > 0 && (
+                    <Collapsible open={isChainExpanded} onOpenChange={setIsChainExpanded}>
                         <CollapsibleTrigger asChild>
-                            <Button>
-                                {isChainExpanded ? (
-                                    <ChevronUp className="h-4 w-4" />
-                                ) : (
-                                    <ChevronDown className="h-4 w-4" />
-                                )}
-                            </Button>
-                        </CollapsibleTrigger>
-                    </div>
-
-                    <div className="relative">
-                        <EntryCard
-                            entry={reflectionChain[0]}
-                            mode="summary"
-                            isReflectionTarget={true}
-                            onClick={() => handleEntryClick(reflectionChain[0].id)}
-                        />
-                        <span className="text-sm text-primary font-medium mt-2 block">
-                            Original entry
-                        </span>
-                    </div>
-
-                    <CollapsibleContent>
-                        <div className="space-y-6 mt-6">
-                            {reflectionChain.slice(1).map((chainEntry, index) => (
-                                <div key={chainEntry.id} className="relative">
-                                    <div className="absolute -top-3 left-6 h-6 w-px bg-border" />
-                                    <EntryCard
-                                        entry={chainEntry}
-                                        mode="summary"
-                                        onClick={() => handleEntryClick(chainEntry.id)}
-                                    />
-                                    <span className="text-sm text-muted-foreground mt-2 block">
-                                        {index === reflectionChain.length - 2 ? 'First reflection' : 'Earlier reflection'}
-                                    </span>
+                            <button className="w-full group">
+                                <div className="flex items-center gap-3 py-2 px-4 rounded-lg border border-border/40 hover:border-border hover:bg-accent/5 transition-colors">
+                                    <div className="flex-1">
+                                        <p className="text-sm text-muted-foreground">
+                                            View earlier reflections ({olderEntries.length} more {olderEntries.length === 1 ? 'entry' : 'entries'})
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-muted-foreground group-hover:text-foreground transition-colors">
+                                        {isChainExpanded ? (
+                                            <ChevronUp className="h-4 w-4" />
+                                        ) : (
+                                            <ChevronDown className="h-4 w-4" />
+                                        )}
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    </CollapsibleContent>
-                </Collapsible>
+                            </button>
+                        </CollapsibleTrigger>
+
+                        <CollapsibleContent>
+                            <div className="pt-4 space-y-6">
+                                {olderEntries.map((chainEntry, index) => (
+                                    <div key={chainEntry.id} className="relative">
+                                        <div className="absolute -left-[17px] top-0 h-full w-px bg-border" />
+                                        <div className="absolute -left-[21px] top-[24px] h-4 w-4 rounded-full border-2 border-background bg-border" />
+                                        <div className="pl-6">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="text-sm font-medium text-muted-foreground">
+                                                    {index === olderEntries.length - 1 ? 'Original entry' : `Earlier reflection ${olderEntries.length - index}`}
+                                                </span>
+                                            </div>
+                                            <EntryCard
+                                                entry={chainEntry}
+                                                mode="summary"
+                                                onClick={() => handleEntryClick(chainEntry.id)}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
+                )}
             </div>
         );
     };
@@ -403,46 +400,49 @@ export const ViewEntry = () => {
                     cancelText="Cancel"
                 />
 
-                    <Card className={`
-                                    ${colors.background} 
-                                    ${colors.border} 
-                                    bg-white/95 
-                                    backdrop-blur-md 
-                                    shadow-lg 
-                                    border-2
-                                    rounded-xl
-                                `}>
-                    <CardHeader>
-                        <div className="flex items-center justify-between gap-4">
-                            <div className="space-y-1 flex-1">
-                                <div className={`
-                                    inline-flex items-center gap-2 
-                                    bg-white 
-                                    shadow-sm 
-                                    px-3 py-2 
-                                    rounded-md 
-                                    border-2 
-                                    ${colors.border}
-                                `}>
-                                    {EntryTypeIcon[entry.contentType]}
-                                    <span className="text-sm font-medium capitalize">
-                                        {entry.contentType} Entry
-                                    </span>
-                                </div>
-                                <CardTitle className="text-2xl leading-tight">
-                                    {entry.title}
-                                </CardTitle>
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    <Calendar className="h-4 w-4" />
-                                    {new Date(entry.date).toLocaleDateString()}
-                                </div>
+                <Card className={`
+                    ${colors.background} 
+                    ${colors.border} 
+                    bg-white/95 
+                    backdrop-blur-md 
+                    shadow-lg 
+                    border-2
+                    rounded-xl
+                `}>
+                    <CardHeader className="space-y-6">
+                        {/* Entry Type Badge */}
+                        <div className={`
+                            inline-flex items-center gap-2 
+                            bg-white/50
+                            shadow-sm 
+                            px-3 py-2 
+                            rounded-md 
+                            border 
+                            ${colors.border}
+                        `}>
+                            {EntryTypeIcon[entry.contentType]}
+                            <span className="text-sm font-medium capitalize">
+                                {entry.contentType} Entry
+                            </span>
+                        </div>
+
+                        {/* Title and Date */}
+                        <div className="space-y-2">
+                            <CardTitle className="text-2xl leading-tight">
+                                {entry.title}
+                            </CardTitle>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Calendar className="h-4 w-4" />
+                                {new Date(entry.date).toLocaleDateString()}
                             </div>
                         </div>
 
+                        {/* Reflection Chain */}
                         {renderReflectionChain()}
 
+                        {/* Prompt if exists */}
                         {entry.prompt && (
-                            <div className={`mt-4 p-4 rounded-lg border ${colors.border}`}>
+                            <div className={`p-4 rounded-lg border ${colors.border} bg-white/50`}>
                                 <p className={`text-lg ${colors.icon} pl-6 border-l-2 italic`}>
                                     "{entry.prompt}"
                                 </p>
