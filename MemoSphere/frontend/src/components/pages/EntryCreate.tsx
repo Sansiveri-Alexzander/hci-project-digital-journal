@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { TextEntry, AudioEntry, ImageEntry } from '@/components/entry';
 import FeelingActivityModal from '@/components/entry/FeelingActivityModal';
+import SaveConfirmationOverlay from '../entry/SaveConfirmationOverlay';
 import PromptGenerator from '@/components/entry/PromptGenerator';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ export const EntryCreate = () => {
     const navigate = useNavigate();
     const [currentType, setCurrentType] = useState<ContentType>(type as ContentType);
     const [showReflection, setShowReflection] = useState(false);
+    const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
     const [showUnsavedModal, setShowUnsavedModal] = useState(false);
     const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
     const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
@@ -192,10 +194,8 @@ export const EntryCreate = () => {
     };
 
     const handleReflectionSave = async (feelings: string[], activities: string[]) => {
-        // Get existing entries to check for "Untitled" entries
-        
         const entryTitle = await generateTitle();
-
+    
         await entryManager.createEntry(
             currentType,
             pendingContent.content,
@@ -204,15 +204,17 @@ export const EntryCreate = () => {
             activities.map(activity => ({ id: activity, name: activity })),
             pendingContent.isReflection,
             pendingContent.linkedEntryId,
-            selectedPrompt || undefined  // prompt
+            selectedPrompt || undefined
         );
-        navigate('/entries');
+        
+        setShowReflection(false);
+        setShowSaveConfirmation(true);
     };
 
     const handleReflectionSkip = async () => {
         try {
             const entryTitle = await generateTitle();
-
+    
             // Save entry without reflections
             await entryManager.createEntry(
                 currentType,
@@ -222,10 +224,11 @@ export const EntryCreate = () => {
                 [],  // empty activities array
                 pendingContent.isReflection,
                 pendingContent.linkedEntryId,
-                selectedPrompt || undefined  // prompt
+                selectedPrompt || undefined
             );
-
-            navigate('/entries');
+    
+            setShowReflection(false);
+            setShowSaveConfirmation(true);  // Show the confirmation overlay
         } catch (error) {
             console.error('Error saving entry without reflections:', error);
             // You might want to show an error message to the user here
@@ -407,6 +410,14 @@ export const EntryCreate = () => {
                     description="You have unsaved changes. Are you sure you want to leave? Your changes will be lost."
                     confirmText="Leave"
                     cancelText="Stay"
+                />
+
+                <SaveConfirmationOverlay 
+                    isVisible={showSaveConfirmation}
+                    onComplete={() => {
+                        setShowSaveConfirmation(false);
+                        navigate('/entries');
+                    }}
                 />
             </div>
         </>
