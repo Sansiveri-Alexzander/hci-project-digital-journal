@@ -1,20 +1,26 @@
 // src/components/pages/AllEntries.tsx
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EntryCard from '@/components/base/EntryCard';
 import { Entry } from '@/types/Entry';
 import { EntryManager } from '@/services/EntryManager';
 import { ArrowLeft, PenLine, Mic, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import EntryFilter from '../entry/EntryFilter.tsx';
 import '@/styles/background-animation.css';
 
 export const AllEntries = () => {
-    const [entries, setEntries] = useState<Entry[]>([]);
+    // state management for entries and filters
+    const [entries, setEntries] = useState<Entry[]>([]); // all entries
+    const [filteredEntries, setFilteredEntries] = useState<Entry[]>([]); // entries after applying filters
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedFeelings, setSelectedFeelings] = useState<string[]>([]);
+    const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
     const navigate = useNavigate();
     const entryManager = new EntryManager();
 
+    // entry type definitions for the "create new" view
     const entryTypes = [
         {
             type: 'text',
@@ -39,11 +45,13 @@ export const AllEntries = () => {
         }
     ];
 
+    // load entries when component mounts
     useEffect(() => {
         const loadEntries = async () => {
             try {
                 const loadedEntries = await entryManager.getAllEntries();
                 setEntries(loadedEntries);
+                setFilteredEntries(loadedEntries); // initially show all entries
             } catch (error) {
                 console.error('Error loading entries:', error);
             } finally {
@@ -54,8 +62,33 @@ export const AllEntries = () => {
         loadEntries();
     }, []);
 
+    // handle filter changes from the EntryFilter component
+    const handleFilterChange = (feelings: string[], activities: string[]) => {
+        setSelectedFeelings(feelings);
+        setSelectedActivities(activities);
+
+        let filtered = [...entries];
+
+        // apply feeling filters if any are selected
+        if (feelings.length > 0) {
+            filtered = filtered.filter(entry =>
+                entry.feelings.some(feeling => feelings.includes(feeling.id))
+            );
+        }
+
+        // apply activity filters if any are selected
+        if (activities.length > 0) {
+            filtered = filtered.filter(entry =>
+                entry.activities.some(activity => activities.includes(activity.id))
+            );
+        }
+
+        setFilteredEntries(filtered);
+    };
+
     return (
         <div className="container mx-auto px-4 py-6 relative z-10">
+            {/* header with back button */}
             <div className="flex justify-between items-center mb-6 relative">
                 <Button
                     onClick={() => navigate(-1)}
@@ -64,12 +97,14 @@ export const AllEntries = () => {
                     <ArrowLeft className="h-4 w-4" />
                     Back
                 </Button>
-                <h1 className="text-center mx-auto text-2xl font-bold mb-6">All Entries</h1>
+                <h1 className="text-center mx-auto text-2xl font-bold">All Entries</h1>
             </div>
 
             {isLoading ? (
+                // loading state
                 <div className="text-center py-4">Loading entries...</div>
             ) : entries.length === 0 ? (
+                // empty state - show create entry options
                 <Card className="max-w-2xl mx-auto">
                     <CardHeader>
                         <CardTitle className="text-center">Create Your First Entry</CardTitle>
@@ -96,15 +131,35 @@ export const AllEntries = () => {
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {entries.map((entry) => (
-                        <EntryCard
-                            key={entry.id}
-                            entry={entry}
-                            onClick={() => navigate(`/entries/${entry.id}`)}
-                        />
-                    ))}
-                </div>
+                // entries view with filters
+                <>
+                    {/* filter component */}
+                    <EntryFilter
+                        onFilterChange={handleFilterChange}
+                        selectedFeelings={selectedFeelings}
+                        selectedActivities={selectedActivities}
+                        entriesCount={entries.length}
+                        filteredCount={filteredEntries.length}
+                    />
+
+                    {/* grid of entry cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredEntries.map((entry) => (
+                            <EntryCard
+                                key={entry.id}
+                                entry={entry}
+                                onClick={() => navigate(`/entries/${entry.id}`)}
+                            />
+                        ))}
+                    </div>
+
+                    {/* no results state */}
+                    {filteredEntries.length === 0 && (
+                        <div className="text-center py-12">
+                            <p className="text-muted-foreground">No entries match your selected filters.</p>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
