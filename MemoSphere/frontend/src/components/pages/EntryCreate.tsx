@@ -409,7 +409,7 @@ export const EntryCreate = () => {
                     title="Unsaved Changes"
                     description="You have unsaved changes. Are you sure you want to leave? Your changes will be lost."
                     confirmText="Leave"
-                    cancelText="Stay"
+                    cancelText="Cancel"
                 />
 
                 <SaveConfirmationOverlay 

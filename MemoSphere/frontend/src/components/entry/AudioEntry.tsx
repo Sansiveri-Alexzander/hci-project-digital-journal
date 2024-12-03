@@ -2,8 +2,8 @@
 import React, { useState, useRef } from 'react';
 import { Mic, Square } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AssemblyAI } from 'assemblyai';
+import ConfirmationModal from './ConfirmationModal';
 
 interface AudioEntryProps {
     onSave: (audioBlob: Blob | null) => void;
@@ -127,29 +127,16 @@ const AudioEntry: React.FC<AudioEntryProps> = ({ onSave }) => {
                 </>
             )}
 
-            {/* Restart Dialog */}
-            <Dialog open={showRestartDialog} onOpenChange={setShowRestartDialog}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Start Over?</DialogTitle>
-                    </DialogHeader>
-                    <p className="py-4">
-                        Starting over will delete your current recording. Continue?
-                    </p>
-                    <DialogFooter className="flex gap-2">
-                        <Button
-                            onClick={() => setShowRestartDialog(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={handleRestart}
-                        >
-                            Start Over
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            {/* Unsaved Changes Modal */}
+            <ConfirmationModal
+                isOpen={showRestartDialog}
+                onConfirm={handleRestart}
+                onCancel={() => setShowRestartDialog(false)}
+                title="Start Over"
+                description="Starting over will delete your current recording. Continue?"
+                confirmText="Start Over"
+                cancelText="Cancel"
+            />
         </div>
     );
 };
