@@ -240,7 +240,12 @@ export const EntryCreate = () => {
         if (!reflectionChain.length) return null;
 
         const handleEntryClick = (entryId: string) => {
+          if (pendingContent.hasContent) {
+            setPendingAction(() => () => navigate('/'));
+            setShowUnsavedModal(true);
+          } else {
             navigate(`/entries/${entryId}`);
+          }
         };
 
         // If there's only one entry, just show it without the collapsible
