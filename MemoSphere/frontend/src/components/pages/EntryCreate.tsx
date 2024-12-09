@@ -241,7 +241,7 @@ export const EntryCreate = () => {
 
         const handleEntryClick = (entryId: string) => {
           if (pendingContent.hasContent) {
-            setPendingAction(() => () => navigate('/'));
+            setPendingAction(() => () => navigate(`/entries/${entryId}`));
             setShowUnsavedModal(true);
           } else {
             navigate(`/entries/${entryId}`);

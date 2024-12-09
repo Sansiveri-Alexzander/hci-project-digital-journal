@@ -1,5 +1,5 @@
 // src/components/pages/AllEntries.tsx
-import React, { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EntryCard from '@/components/base/EntryCard';
 import { Entry } from '@/types/Entry';

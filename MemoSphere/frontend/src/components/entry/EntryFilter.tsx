@@ -79,8 +79,6 @@ const EntryFilter: React.FC<EntryFilterProps> = ({
                                         exit={{ opacity: 0, x: -20 }}
                                     >
                                         <Button
-                                            variant="outline"
-                                            size="sm"
                                             onClick={clearFilters}
                                             className="gap-2"
                                         >
@@ -112,8 +110,6 @@ const EntryFilter: React.FC<EntryFilterProps> = ({
                                 {FEELINGS.map((feeling) => (
                                     <Button
                                         key={feeling.id}
-                                        variant="outline"
-                                        size="sm"
                                         className={`h-9 justify-start gap-2 transition-all duration-300 hover:scale-[1.02] ${
                                             selectedFeelings.includes(feeling.id)
                                                 ? 'bg-[#ed786b]/10 text-[#ed786b] border-[#ed786b] shadow-sm'
@@ -138,8 +134,6 @@ const EntryFilter: React.FC<EntryFilterProps> = ({
                                 {ACTIVITIES.map((activity) => (
                                     <Button
                                         key={activity.id}
-                                        variant="outline"
-                                        size="sm"
                                         className={`h-9 justify-start gap-2 transition-all duration-300 hover:scale-[1.02] ${
                                             selectedActivities.includes(activity.id)
                                                 ? 'bg-[#752239]/10 text-[#752239] border-[#752239] shadow-sm'
